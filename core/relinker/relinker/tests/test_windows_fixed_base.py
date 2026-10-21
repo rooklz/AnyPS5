@@ -85,6 +85,7 @@ def main():
         image[0x200:0x200 + len(code)] = code
         image[0x240:0x246] = bytes.fromhex("b8 2a 00 00 00 c3")
         struct.pack_into("<q", image, 0x710, 0x240)
+        run(convert("sce-dynexec-imports-offset-default", image))
         run(convert("sce-dynexec-imports-offset", image, 0x400000))
         for base in (0x400000, 0x800000, 0x400000000):
             image = fixture()
