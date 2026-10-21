@@ -99,6 +99,7 @@ constexpr int invalidParameter = static_cast<int>(0x805C0001);
 constexpr int invalidSrcBuffer = static_cast<int>(0x805C0010);
 constexpr int srcBufferEnd = static_cast<int>(0x805C0011);
 constexpr int invalidEncode = static_cast<int>(0x805C0014);
+constexpr int outOfCodeSpace = static_cast<int>(0x805C0015);
 constexpr int unassignedCode = static_cast<int>(0x805C0020);
 constexpr int invalidDstBuffer = static_cast<int>(0x805C0030);
 constexpr int dstBufferEnd = static_cast<int>(0x805C0031);
@@ -296,7 +297,7 @@ static void RequireEncode(const Encoders& encoders, const void* profile, std::ui
         Encoded out;
         Require(Encode(encoders, form, code, profile, out) == expected);
         if (expected == 0) Require(out.read == SourceUnits(form, code) && out.size == size && std::memcmp(out.bytes, bytes, size) == 0);
-        else Require(out.read == 77 && out.size == 77 && out.bytes[0] == 0x55 && out.bytes[1] == 0x55);
+        else Require(out.read == 77 && out.size == ((form == 0 || form >= 5) && expected != static_cast<int>(0x805C0001) ? 0u : 77u) && out.bytes[0] == 0x55 && out.bytes[1] == 0x55);
     }
 }
 
@@ -434,9 +435,9 @@ int main() {
     const std::uint32_t big = 0x0000AC00;
     Require(sceCesUcs2ToEucKr(0xAC00, uhc, nullptr, 0, nullptr) == invalidParameter);
     Require(sceCesUcs2ToEucKr(0xD800, eucKr, nullptr, 0, nullptr) == invalidDstBuffer);
-    Require(sceCesUcs2ToEucKr(0xD800, eucKr, out, 2, &size) == invalidEncode);
+    Require(sceCesUcs2ToEucKr(0xD800, eucKr, out, 2, &size) == outOfCodeSpace);
     Require(sceCesUtf32ToUhc(0x110000, uhc, out, 2, &size) == invalidEncode);
-    Require(sceCesUtf32ToUhc(0xDFFF, uhc, out, 2, &size) == invalidEncode);
+    Require(sceCesUtf32ToUhc(0xDFFF, uhc, out, 2, &size) == outOfCodeSpace);
     Require(sceCesUtf32beToBig5(nullptr, eucKr, nullptr, 0, nullptr) == invalidParameter);
     Require(sceCesUtf32beToBig5(nullptr, big5, nullptr, 0, nullptr) == invalidSrcBuffer);
     Require(sceCesUtf32leToBig5(&big, big5, nullptr, 0, nullptr) == invalidDstBuffer);
@@ -452,7 +453,7 @@ int main() {
     Require(sceCesUtf16ToUhc(lowSurrogate, 1, &read, uhc, out, 2, &size) == invalidEncode);
     Require(sceCesUtf16ToUhc(highSurrogate, 1, &read, uhc, out, 2, &size) == srcBufferEnd);
     Require(sceCesUtf16ToUhc(highSurrogate, 2, &read, uhc, out, 2, &size) == invalidEncode);
-    Require(out[0] == 0x55 && out[1] == 0x55 && size == 77 && read == 77);
+    Require(out[0] == 0x55 && out[1] == 0x55 && size == 0 && read == 77);
 
     std::memcpy(&unit, "\xAC\x00", 2);
     Require(sceCesUtf16beToEucKr(&unit, 1, &read, eucKr, out, 2, &size) == 0 && read == 1 && size == 2 && std::memcmp(out, "\xB0\xA1", 2) == 0);
