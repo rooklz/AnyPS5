@@ -1,0 +1,203 @@
+name: Verify on hosted runners
+
+on:
+  push:
+    branches: ['verify/**']
+
+permissions:
+  contents: read
+
+env:
+  CONFIGURE: >-
+    -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+    -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  WINLIBS_RELEASE: 15.2.0posix-14.0.0-ucrt-r7
+  WINLIBS_ZIP: winlibs-x86_64-posix-seh-gcc-15.2.0-mingw-w64ucrt-14.0.0-r7.zip
+
+jobs:
+  linux-full:
+    if: contains(github.ref_name, 'linux')
+    strategy:
+      fail-fast: false
+      matrix:
+        side: ${{ fromJSON(contains(github.ref_name, 'nobase') && '["change"]' || '["base","change"]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: verify
+      - id: refs
+        run: |
+          . verify/.github/verify.cfg
+          if [ "${{ matrix.side }}" = base ]; then echo "repo=boykopovar/AnyPS5" >> "$GITHUB_OUTPUT"; echo "ref=$BASE_SHA" >> "$GITHUB_OUTPUT"; else echo "repo=rooklz/AnyPS5" >> "$GITHUB_OUTPUT"; echo "ref=$CHANGE_REF" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.refs.outputs.repo }}
+          ref: ${{ steps.refs.outputs.ref }}
+          path: src
+          submodules: recursive
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ninja-build ccache libvulkan1 mesa-vulkan-drivers libpipewire-0.3-dev libpulse-dev libasound2-dev libxrandr-dev libwayland-dev libxkbcommon-dev libegl-dev libdecor-0-dev libx11-dev libxext-dev
+      - uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: linux-${{ matrix.side }}
+      - run: cmake -S src -B build $CONFIGURE -DANYPS5_ENABLE_SPIRV_TOOLS=ON
+      - run: cmake --build build
+      - run: cmake --build build --target libs
+      - run: python3 src/tools/check_test_registration.py build
+      - name: Run tests
+        env:
+          ANYPS5_REQUIRE_VULKAN: 1
+          GALLIUM_OVERRIDE_CPU_CAPS: avx
+        run: |
+          git -C src rev-parse HEAD > summary.txt
+          ctest --test-dir build --output-on-failure --timeout 120 -j "$(nproc)" -E '^precise_wait$' > ctest.log 2>&1 || true
+          grep -E "tests passed|tests failed" ctest.log >> summary.txt || true
+          grep -E '^\s+[0-9]+ - .*\((Failed|Timeout|SEGFAULT|Subprocess aborted|Exception|Child aborted|ILLEGAL|BUS|INTERRUPT)' ctest.log | sed -E 's/^\s*[0-9]+ - //' | sort > failures.txt || true
+          python3 src/tools/progress.py --json > progress.json || true
+          cat summary.txt failures.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-${{ matrix.side }}
+          path: |
+            summary.txt
+            failures.txt
+            ctest.log
+            progress.json
+
+  windows-full:
+    if: contains(github.ref_name, 'winfull')
+    strategy:
+      fail-fast: false
+      matrix:
+        side: ${{ fromJSON(contains(github.ref_name, 'nobase') && '["change"]' || '["base","change"]') }}
+    runs-on: windows-latest
+    timeout-minutes: 330
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: verify
+      - id: refs
+        run: |
+          . verify/.github/verify.cfg
+          echo "tests=${TEST_REGEX:-}" >> "$GITHUB_OUTPUT"
+          if [ "${{ matrix.side }}" = base ]; then echo "repo=boykopovar/AnyPS5" >> "$GITHUB_OUTPUT"; echo "ref=$BASE_SHA" >> "$GITHUB_OUTPUT"; else echo "repo=rooklz/AnyPS5" >> "$GITHUB_OUTPUT"; echo "ref=$CHANGE_REF" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.refs.outputs.repo }}
+          ref: ${{ steps.refs.outputs.ref }}
+          path: src
+          submodules: recursive
+      - name: Point the WinLibs CMake at the CA bundle of Git for Windows
+        run: |
+          for prefix in ucrt64 mingw64; do
+            bundle="C:/Program Files/Git/$prefix/etc/ssl/certs/ca-bundle.crt"
+            if [ -f "$bundle" ]; then echo "SSL_CERT_FILE=$bundle" >> "$GITHUB_ENV"; exit 0; fi
+          done
+          echo "::error::No CA bundle found in Git for Windows"; exit 1
+      - id: toolchain
+        uses: actions/cache@v4
+        with:
+          path: C:\winlibs
+          key: ${{ env.WINLIBS_ZIP }}
+      - if: steps.toolchain.outputs.cache-hit != 'true'
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/winlibs.zip" "https://github.com/brechtsanders/winlibs_mingw/releases/download/$WINLIBS_RELEASE/$WINLIBS_ZIP"
+          7z x "$RUNNER_TEMP/winlibs.zip" -oC:/winlibs > /dev/null
+      - run: echo 'C:\winlibs\mingw64\bin' >> "$GITHUB_PATH"
+      - uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: windows-full-${{ matrix.side }}
+      - shell: cmd
+        run: cmake -S src -B build %CONFIGURE% "-DANYPS5_AGC_EXECUTION_TESTS=F16ToF32Unpack;F64FmaSubnormals;RegistrationPrepareShutdown"
+      - shell: cmd
+        run: cmake --build build
+      - shell: cmd
+        run: cmake --build build --target libs
+      - shell: cmd
+        run: python src/tools/check_test_registration.py build
+      - name: Run tests
+        shell: cmd
+        env:
+          TESTS: ${{ steps.refs.outputs.tests }}
+        run: |
+          if "%TESTS%"=="" (ctest --test-dir build --output-on-failure --timeout 120 --parallel 4 > ctest.log 2>&1) else (ctest --test-dir build --output-on-failure --timeout 120 --parallel 4 -R "%TESTS%" > ctest.log 2>&1)
+          exit /b 0
+      - name: Summarise tests
+        run: |
+          git -C src rev-parse HEAD > summary.txt
+          grep -E "tests passed|tests failed" ctest.log >> summary.txt || true
+          grep -E '^\s+[0-9]+ - .*\((Failed|Timeout|SEGFAULT|Subprocess aborted|Exception|Child aborted|ILLEGAL|BUS|INTERRUPT)' ctest.log | sed -E 's/^\s*[0-9]+ - //' | sort > failures.txt || true
+          cat summary.txt failures.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-full-${{ matrix.side }}
+          path: |
+            summary.txt
+            failures.txt
+            ctest.log
+
+  windows-relinker:
+    if: contains(github.ref_name, 'windows-relinker')
+    strategy:
+      fail-fast: false
+      matrix:
+        side: ${{ fromJSON(contains(github.ref_name, 'nobase') && '["change"]' || '["base","change"]') }}
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: verify
+      - id: refs
+        run: |
+          . verify/.github/verify.cfg
+          if [ "${{ matrix.side }}" = base ]; then echo "repo=boykopovar/AnyPS5" >> "$GITHUB_OUTPUT"; echo "ref=$BASE_SHA" >> "$GITHUB_OUTPUT"; else echo "repo=rooklz/AnyPS5" >> "$GITHUB_OUTPUT"; echo "ref=$CHANGE_REF" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.refs.outputs.repo }}
+          ref: ${{ steps.refs.outputs.ref }}
+          path: src
+      - id: toolchain
+        uses: actions/cache@v4
+        with:
+          path: C:\winlibs
+          key: ${{ env.WINLIBS_ZIP }}
+      - if: steps.toolchain.outputs.cache-hit != 'true'
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/winlibs.zip" "https://github.com/brechtsanders/winlibs_mingw/releases/download/$WINLIBS_RELEASE/$WINLIBS_ZIP"
+          7z x "$RUNNER_TEMP/winlibs.zip" -oC:/winlibs > /dev/null
+      - run: echo 'C:\winlibs\mingw64\bin' >> "$GITHUB_PATH"
+      - uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: windows-${{ matrix.side }}
+      - shell: cmd
+        run: cmake -S src -B build %CONFIGURE% -DANYPS5_RELINKER_ONLY=ON
+      - shell: cmd
+        run: cmake --build build
+      - name: Run tests
+        run: |
+          mkdir -p "$RUNNER_TEMP/t"
+          export TEMP="$(cygpath -w "$RUNNER_TEMP/t")" TMP="$(cygpath -w "$RUNNER_TEMP/t")"
+          git -C src rev-parse HEAD > summary.txt
+          ctest --test-dir build --output-on-failure --timeout 120 -j 4 > ctest.log 2>&1 || true
+          grep -E "tests passed|tests failed" ctest.log >> summary.txt || true
+          grep -E '^\s+[0-9]+ - .*\((Failed|Timeout|SEGFAULT|Subprocess aborted|Exception|Child aborted|ILLEGAL|BUS|INTERRUPT)' ctest.log | sed -E 's/^\s*[0-9]+ - //' | sort > failures.txt || true
+          cat summary.txt failures.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-${{ matrix.side }}
+          path: |
+            summary.txt
+            failures.txt
+            ctest.log
