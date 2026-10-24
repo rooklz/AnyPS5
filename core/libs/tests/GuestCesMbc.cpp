@@ -7,6 +7,9 @@ extern "C" {
 void* APS5_VABI sceCesUcsProfileInitSJis1997Cp932(void*);
 void* APS5_VABI sceCesUcsProfileInitEucJpCp51932(void*);
 void* APS5_VABI sceCesUcsProfileInitGbkCp936(void*);
+void* APS5_VABI sceCesUcsProfileInitGb18030_2000(void*);
+void* APS5_VABI sceCesUcsProfileInitUhc(void*);
+void* APS5_VABI sceCesUcsProfileInitBig5Cp950(void*);
 const std::uint8_t* APS5_VABI sceCesRefersUcsProfileCp1252(void);
 int APS5_VABI sceCesMbcsUcsContextInit(void*, const void*);
 int APS5_VABI sceCesMbcsUcsContextInitCopy(void*, const void*);
@@ -28,6 +31,37 @@ int APS5_VABI sceCesJisX0213ToSJisCode(std::uint8_t, std::uint8_t, std::uint8_t,
 static void Require(bool value) { if (!value) std::abort(); }
 
 static const std::uint8_t* Bytes(const char* text) { return reinterpret_cast<const std::uint8_t*>(text); }
+
+struct Rejected {
+    const void* profile;
+    const char* bytes;
+    std::uint32_t size;
+    int expected;
+    std::uint32_t length;
+};
+
+static void RequireRejected(const Rejected& sequence) {
+    for (int form = 0; form < 8; ++form) {
+        std::uint32_t consumed = 0xEEEEEEEE;
+        std::uint32_t produced = 0;
+        std::uint16_t units[2] = {};
+        std::uint8_t utf8[4] = {};
+        std::uint32_t utf32 = 0;
+        const auto* bytes = Bytes(sequence.bytes);
+        int result = 0;
+        switch (form) {
+        case 0: result = sceCesMbcToUcs2(sequence.profile, bytes, sequence.size, &consumed, units); break;
+        case 1: result = sceCesMbcToUtf8(sequence.profile, bytes, sequence.size, &consumed, utf8, sizeof(utf8), &produced); break;
+        case 2: result = sceCesMbcToUtf16(sequence.profile, bytes, sequence.size, &consumed, units, 2, &produced); break;
+        case 3: result = sceCesMbcToUtf16be(sequence.profile, bytes, sequence.size, &consumed, units, 2, &produced); break;
+        case 4: result = sceCesMbcToUtf16le(sequence.profile, bytes, sequence.size, &consumed, units, 2, &produced); break;
+        case 5: result = sceCesMbcToUtf32(sequence.profile, bytes, sequence.size, &consumed, &utf32); break;
+        case 6: result = sceCesMbcToUtf32be(sequence.profile, bytes, sequence.size, &consumed, &utf32); break;
+        default: result = sceCesMbcToUtf32le(sequence.profile, bytes, sequence.size, &consumed, &utf32); break;
+        }
+        Require(result == sequence.expected && consumed == sequence.length);
+    }
+}
 
 static void RequireX0213(std::uint16_t sjis, std::uint8_t men, std::uint8_t ku, std::uint8_t ten) {
     std::uint8_t m = 0;
@@ -69,9 +103,25 @@ int main() {
     Require(sceCesMbcToUcs2(sjis, nullptr, 1, &consumed, &ucs2) == invalidSrcBuffer);
     Require(sceCesMbcToUcs2(sjis, Bytes("A"), 0, &consumed, &ucs2) == srcBufferEnd);
     Require(sceCesMbcToUcs2(sjis, Bytes("A"), 1, &consumed, nullptr) == invalidDstBuffer);
-    Require(sceCesMbcToUcs2(sjis, Bytes("\x82"), 1, &consumed, &ucs2) == srcBufferEnd);
-    Require(sceCesMbcToUcs2(sjis, Bytes("\x80"), 1, &consumed, &ucs2) == invalidEncode);
-    Require(sceCesMbcToUcs2(sjis, Bytes("\xF0\x40"), 2, &consumed, &ucs2) == unassignedCode);
+
+    alignas(8) std::uint8_t gb18030Sheet[64] = {};
+    alignas(8) std::uint8_t uhcSheet[64] = {};
+    alignas(8) std::uint8_t big5Sheet[64] = {};
+    const void* gb18030 = sceCesUcsProfileInitGb18030_2000(gb18030Sheet);
+    const void* uhc = sceCesUcsProfileInitUhc(uhcSheet);
+    const void* big5 = sceCesUcsProfileInitBig5Cp950(big5Sheet);
+    const Rejected rejected[] = {
+        {sjis, "\x82", 1, srcBufferEnd, 2}, {sjis, "\x80", 1, invalidEncode, 1}, {sjis, "\xA0", 1, invalidEncode, 1},
+        {sjis, "\x82\x00", 2, invalidEncode, 1}, {sjis, "\x82\x7F", 2, invalidEncode, 2}, {sjis, "\xF0\x40", 2, unassignedCode, 2},
+        {euc, "\xA4", 1, srcBufferEnd, 2}, {euc, "\x8F\xA1", 2, srcBufferEnd, 3}, {euc, "\xFF", 1, invalidEncode, 1},
+        {euc, "\xA4\x00", 2, invalidEncode, 1}, {euc, "\xA4\x41", 2, invalidEncode, 2}, {euc, "\x8F\x00", 2, invalidEncode, 1},
+        {gbk, "\x81", 1, srcBufferEnd, 2}, {gbk, "\xFF", 1, invalidEncode, 1}, {gbk, "\x81\x00", 2, invalidEncode, 1}, {gbk, "\x81\x7F", 2, invalidEncode, 2},
+        {gb18030, "\x81\x30", 2, srcBufferEnd, 4}, {gb18030, "\x81\x30\x81", 3, srcBufferEnd, 4}, {gb18030, "\x81\x00", 2, invalidEncode, 1},
+        {gb18030, "\x81\x30\x00", 3, invalidEncode, 2}, {gb18030, "\x81\x30\x20\x00", 4, invalidEncode, 3}, {gb18030, "\x81\x30\x20\x30", 4, invalidEncode, 4},
+        {uhc, "\xC9", 1, srcBufferEnd, 2}, {uhc, "\xC9\xFF", 2, invalidEncode, 2}, {uhc, "\xC9\x41", 2, unassignedCode, 2},
+        {big5, "\xA1\x00", 2, invalidEncode, 1}, {big5, "\xA1\x7F", 2, invalidEncode, 2}, {big5, "\x81\x40", 2, unassignedCode, 2},
+    };
+    for (const Rejected& sequence : rejected) RequireRejected(sequence);
 
     std::uint8_t utf8[4] = {};
     Require(sceCesMbcToUtf8(gbk, Bytes("\xD6\xD0"), 2, &consumed, utf8, sizeof(utf8), &produced) == 0 && consumed == 2 && produced == 3);
