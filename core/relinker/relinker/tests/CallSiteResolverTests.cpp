@@ -62,6 +62,16 @@ int main() {
         check("NOTRACK register jump has no RIP operand", {0x3e, 0xff, 0xe0}, false);
         check("BND-prefixed increment is not an import access", {0xf2, 0xff, 0x05, 0xf9, 0, 0, 0}, false);
         check("DS-prefixed decrement is not an import access", {0x3e, 0xff, 0x0d, 0xf9, 0, 0, 0}, false);
+        check("REP indirect call", {0xf3, 0xff, 0x15, 0xf9, 0, 0, 0}, true);
+        check("REP indirect tail jump", {0xf3, 0xff, 0x25, 0xf9, 0, 0, 0}, true);
+        check("REP BND indirect call", {0xf3, 0xf2, 0xff, 0x15, 0xf8, 0, 0, 0}, true);
+        check("REP REX pointer load", {0xf3, 0x48, 0x8b, 0x05, 0xf8, 0, 0, 0}, true);
+        check("REP after REX.W leaves a narrow load", {0x48, 0xf3, 0x8b, 0x05, 0xf8, 0, 0, 0}, false);
+        check("final REX.W after REP widens a load", {0x48, 0xf3, 0x48, 0x8b, 0x05, 0xf7, 0, 0, 0}, true);
+        check("REP register call has no RIP operand", {0xf3, 0xff, 0xd0}, false);
+        check("REP-prefixed increment is not an import access", {0xf3, 0xff, 0x05, 0xf9, 0, 0, 0}, false);
+        check("REP-prefixed push", {0xf3, 0xff, 0x35, 0xf9, 0, 0, 0}, true);
+        check("LOCK indirect call is not classified", {0xf0, 0xff, 0x15, 0xf9, 0, 0, 0}, false);
         check("pointer load without REX.W", {0x40, 0x8b, 0x05, 0xf9, 0, 0, 0}, false);
         check("register pointer load", {0x48, 0x8b, 0x00}, false);
         check("increment memory", {0xff, 0x05, 0xfa, 0, 0, 0}, false);
@@ -74,13 +84,15 @@ int main() {
             check(name + " pointer load", ripInstruction({segment, 0x48}, 0x8b, 0x05), true);
             check(name + " before BND call", ripInstruction({segment, 0xf2}, 0xff, 0x15), true);
             check(name + " after BND jump", ripInstruction({0xf2, segment}, 0xff, 0x25), true);
+            check(name + " before REP call", ripInstruction({segment, 0xf3}, 0xff, 0x15), true);
+            check(name + " after REP jump", ripInstruction({0xf3, segment}, 0xff, 0x25), true);
             check(name + " after REX.W leaves a narrow load", ripInstruction({0x48, segment}, 0x8b, 0x05), false);
             check(name + " final REX.W restores pointer width", ripInstruction({0x48, segment, 0x48}, 0x8b, 0x05), true);
             check(name + " final narrow REX", ripInstruction({segment, 0x48, 0x40}, 0x8b, 0x05), false);
             check(name + " increment", ripInstruction({segment}, 0xff, 0x05), false);
             check(name + " decrement", ripInstruction({segment}, 0xff, 0x0d), false);
             check(name + " narrow load", ripInstruction({segment}, 0x8b, 0x05), false);
-            for (const std::uint8_t unsupported : {0x64, 0x65, 0x67, 0x66, 0xf0, 0xf3}) {
+            for (const std::uint8_t unsupported : {0x64, 0x65, 0x67, 0x66, 0xf0}) {
                 const auto suffix = " unsupported prefix " + std::to_string(unsupported);
                 check(name + " before" + suffix, ripInstruction({segment, unsupported}, 0xff, 0x15), false);
                 check(name + " after" + suffix, ripInstruction({unsupported, segment}, 0xff, 0x15), false);
