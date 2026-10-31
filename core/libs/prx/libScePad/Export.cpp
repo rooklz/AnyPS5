@@ -521,8 +521,11 @@ int APS5_VABI scePadDeviceOpen(std::uint64_t deviceId, std::int32_t type, std::i
 }
 
 int APS5_VABI scePadGetDataInternal(std::uint8_t port, PadData* data) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+ if (!Pad::IsInitialized()) scePadInit_nid_postfix();
+ if (data == nullptr) return PAD_ERROR_INVALID_ARG;
+ if (port >= PAD_MAX_CONTROLLERS) return PAD_ERROR_INVALID_PORT;
+ *data = Pad::ReadState(port);
+ return 0;
 }
 
 int APS5_VABI scePadSetUserColor(std::int32_t handle, std::uint32_t color) {

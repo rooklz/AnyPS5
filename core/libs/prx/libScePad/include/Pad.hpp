@@ -6,6 +6,7 @@
 
 constexpr int PAD_OK = 0;
 constexpr int PAD_ERROR_INVALID_ARG = -2137915391;
+constexpr int PAD_ERROR_INVALID_PORT = -2137915390;
 constexpr int PAD_ERROR_INVALID_HANDLE = -2137915389;
 constexpr int PAD_ERROR_NOT_INITIALIZED = static_cast<int>(0x80920005u);
 
