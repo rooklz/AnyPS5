@@ -160,8 +160,10 @@ int APS5_VABI scePadVrControllerSetVibrationMode(std::int32_t handle, std::uint3
 }
 
 int APS5_VABI scePadVrControllerReadCombinedState(std::int32_t leftHandle, std::int32_t rightHandle, PadVrControllerCombinedState* state) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+    if (state == nullptr) return PAD_ERROR_INVALID_ARG;
+    if (!KnownHandle(leftHandle) || !KnownHandle(rightHandle)) return PAD_ERROR_INVALID_HANDLE;
+    return PAD_ERROR_DEVICE_NOT_CONNECTED;
 }
 
 int APS5_VABI scePadDeviceClassGetExtendedInformation(int handle, PadDeviceClassExtendedInformation* info) {
@@ -487,8 +489,10 @@ int APS5_VABI scePadSetVibrationTriggerEffectWeakWhileEmbeddedMicInUse(bool enab
 }
 
 int APS5_VABI scePadVrControllerGetDeviceInformation(std::int32_t handle, PadVrControllerDeviceInformation* info) {
- NotImplemented_nid_no_patch(__func__);
- return 0;
+ if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+ if (info == nullptr) return PAD_ERROR_INVALID_ARG;
+ if (!KnownHandle(handle)) return PAD_ERROR_INVALID_HANDLE;
+ return PAD_ERROR_DEVICE_NOT_CONNECTED;
 }
 
 int APS5_VABI scePadVrControllerRead(std::int32_t handle, PadVrControllerData* data, std::int32_t count) {
@@ -497,8 +501,11 @@ int APS5_VABI scePadVrControllerRead(std::int32_t handle, PadVrControllerData* d
 }
 
 int APS5_VABI scePadVrControllerGetTriggerEffectState(std::int32_t leftHandle, std::int32_t rightHandle, PadTriggerEffectStateInformation* states) {
- NotImplemented_nid_no_patch(__func__);
- return 0;
+ if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+ if (states == nullptr) return PAD_ERROR_INVALID_ARG;
+ if (!KnownHandle(leftHandle) || !KnownHandle(rightHandle)) return PAD_ERROR_INVALID_HANDLE;
+ *states = PadTriggerEffectStateInformation{};
+ return PAD_ERROR_DEVICE_NOT_CONNECTED;
 }
 
 int APS5_VABI scePadVrControllerReadState(int handle, PadVrControllerData* state) {
@@ -537,8 +544,11 @@ int APS5_VABI scePadUnknown_n3kSX62fgNo() {
 }
 
 int APS5_VABI scePadVrControllerGetTriggerEffectStates(std::int32_t leftHandle, std::int32_t rightHandle, PadTriggerEffectStateInformation* states) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+    if (states == nullptr) return PAD_ERROR_INVALID_ARG;
+    if (!KnownHandle(leftHandle) || !KnownHandle(rightHandle)) return PAD_ERROR_INVALID_HANDLE;
+    *states = PadTriggerEffectStateInformation{};
+    return PAD_ERROR_DEVICE_NOT_CONNECTED;
 }
 
 int APS5_VABI scePadGetAccessibilityControllerState(int handle, std::uint32_t* state) {
