@@ -2962,7 +2962,11 @@ int APS5_VABI sceNetShowNetstatEx(std::uint32_t flags) {
 }
 
 int APS5_VABI sceNetShowNetstatExForBuffer(char* buffer, std::int32_t bufferSize, std::int32_t poolId, std::uint32_t flags) {
-    NotImplemented_nid_no_patch(__func__);
+    (void)buffer;
+    (void)bufferSize;
+    (void)flags;
+    std::lock_guard lk(g_mutex);
+    if (g_pools.find(poolId) == g_pools.end()) return fail(NET_EBADF);
     return 0;
 }
 
