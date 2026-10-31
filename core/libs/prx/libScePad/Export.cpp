@@ -427,8 +427,11 @@ int APS5_VABI scePadVrControllerGetDeviceInformation(std::int32_t handle, PadVrC
 }
 
 int APS5_VABI scePadVrControllerRead(std::int32_t handle, PadVrControllerData* data, std::int32_t count) {
- NotImplemented_nid_no_patch(__func__);
- return 0;
+ if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+ if (data == nullptr || count <= 0) return PAD_ERROR_INVALID_ARG;
+ if (!KnownHandle(handle)) return PAD_ERROR_INVALID_HANDLE;
+ for (std::int32_t index = 0; index < count; ++index) data[index] = PadVrControllerData{};
+ return PAD_ERROR_DEVICE_NOT_CONNECTED;
 }
 
 int APS5_VABI scePadVrControllerGetTriggerEffectState(std::int32_t leftHandle, std::int32_t rightHandle, PadTriggerEffectStateInformation* states) {
@@ -437,10 +440,11 @@ int APS5_VABI scePadVrControllerGetTriggerEffectState(std::int32_t leftHandle, s
 }
 
 int APS5_VABI scePadVrControllerReadState(int handle, PadVrControllerData* state) {
- (void)handle;
- (void)state;
- NotImplemented_nid_no_patch(__func__);
- return 0;
+ if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+ if (state == nullptr) return PAD_ERROR_INVALID_ARG;
+ if (!KnownHandle(handle)) return PAD_ERROR_INVALID_HANDLE;
+ *state = PadVrControllerData{};
+ return PAD_ERROR_DEVICE_NOT_CONNECTED;
 }
 
 int APS5_VABI scePadVrControllerSetTriggerEffect(std::int32_t handle, const PadVrTriggerEffect* effect) {

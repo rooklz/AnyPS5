@@ -698,6 +698,28 @@ static void CheckControllerType(int handle) {
     Require(type == PAD_CONTROLLER_TYPE_DUAL_SENSE);
 }
 
+static void CheckVrControllerRead(int handle) {
+    constexpr int notConnected = static_cast<int>(0x80920007u);
+    PadVrControllerData state{};
+    state.buttons = 1;
+    state.connected = 1;
+    Require(scePadVrControllerReadState(handle + 1, nullptr) == PAD_ERROR_INVALID_ARG);
+    Require(scePadVrControllerReadState(handle + 1, &state) == PAD_ERROR_INVALID_HANDLE);
+    Require(state.buttons == 1 && state.connected == 1);
+    Require(scePadVrControllerReadState(handle, &state) == notConnected);
+    Require(state.buttons == 0 && state.connected == 0 && state.timestamp == 0);
+    PadVrControllerData samples[2]{};
+    samples[0].buttons = 1;
+    samples[1].buttons = 1;
+    Require(scePadVrControllerRead(handle + 1, nullptr, 1) == PAD_ERROR_INVALID_ARG);
+    Require(scePadVrControllerRead(handle + 1, samples, 1) == PAD_ERROR_INVALID_HANDLE);
+    Require(scePadVrControllerRead(handle, samples, 0) == PAD_ERROR_INVALID_ARG);
+    Require(scePadVrControllerRead(handle, samples, -1) == PAD_ERROR_INVALID_ARG);
+    Require(samples[0].buttons == 1 && samples[1].buttons == 1);
+    Require(scePadVrControllerRead(handle, samples, 2) == notConnected);
+    Require(samples[0].buttons == 0 && samples[0].connected == 0 && samples[1].buttons == 0 && samples[1].connected == 0);
+}
+
 static void CheckInjectedState(const std::filesystem::path& path) {
     PadInputState physical;
     physical.buttons = 0x2000;
@@ -948,6 +970,7 @@ int main() {
     CheckVibrationForce(user, handle);
     CheckTriggerEffect(user, handle);
     CheckControllerType(handle);
+    CheckVrControllerRead(handle);
     CheckInjectedState(commandPath);
     CheckInjectedQueueTimes(commandPath);
     PadLightBarParam lightBar{255, 128, 64};
