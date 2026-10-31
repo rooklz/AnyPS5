@@ -680,6 +680,17 @@ static void CheckTriggerEffect(int user, int handle) {
     Require(scePadClose_nid_postfix(special) == PAD_OK);
 }
 
+static void CheckVrControllerReadState(int handle) {
+    std::array<std::uint8_t, 104> state{};
+    state.fill(0xcd);
+    auto* out = reinterpret_cast<PadVrControllerData*>(state.data());
+    Require(scePadVrControllerReadState(handle + 1, out) == PAD_ERROR_INVALID_HANDLE);
+    Require(state[0] == 0xcd);
+    Require(scePadVrControllerReadState(handle, nullptr) == PAD_ERROR_INVALID_ARG);
+    Require(scePadVrControllerReadState(handle, out) == PAD_OK);
+    Require(std::all_of(state.begin(), state.end(), [](std::uint8_t byte) { return byte == 0; }));
+}
+
 static void CheckAccessibilityControllerState(int handle) {
     std::uint32_t state = 7;
     Require(scePadGetAccessibilityControllerState(handle + 1, nullptr) == PAD_ERROR_INVALID_ARG);
@@ -844,6 +855,10 @@ int main() {
     Require(scePadGetSphereRadius(PAD_HANDLE, &earlyRadius) == PAD_ERROR_NOT_INITIALIZED && earlyRadius == 1.0f);
     Require(scePadGetBluetoothAddress(PAD_HANDLE, &earlyAddress) == PAD_ERROR_NOT_INITIALIZED && earlyAddress == 7);
     Require(scePadParseUniqueDataLeonardo(PAD_HANDLE, reinterpret_cast<const PadLeonardoData*>(earlyLeonardo.data()), reinterpret_cast<PadLeonardoUniqueData*>(earlyUnique.data())) == PAD_ERROR_NOT_INITIALIZED && earlyUnique[0] == 0xaa);
+    std::array<std::uint8_t, 104> vrStateBeforeInit{};
+    vrStateBeforeInit.fill(0xcd);
+    Require(scePadVrControllerReadState(PAD_HANDLE, reinterpret_cast<PadVrControllerData*>(vrStateBeforeInit.data())) == PAD_ERROR_NOT_INITIALIZED);
+    Require(vrStateBeforeInit[0] == 0xcd);
     Require(scePadUnknown_n3kSX62fgNo() == static_cast<int>(0x80920005));
     Require(!scePadIsValidHandle(PAD_HANDLE, PAD_PORT_TYPE_STANDARD));
     const PadVibrationParam earlyVibration{1, 2};
@@ -943,6 +958,7 @@ int main() {
     CheckRemoteController(handle);
     CheckTrackerDevices(handle);
     CheckAccessibilityControllerState(handle);
+    CheckVrControllerReadState(handle);
     CheckIsValidHandle(user, handle);
     CheckLightBarResets(user, handle);
     CheckVibrationForce(user, handle);
