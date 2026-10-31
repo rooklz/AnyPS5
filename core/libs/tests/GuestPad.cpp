@@ -976,6 +976,12 @@ int main() {
     Require(scePadResetLightBarAll() == PAD_OK && LightBarIs(0, true, 255, 128, 64));
     Require(scePadResetLightBar(handle) == PAD_OK && LightBarIs(0, false, 0, 0, 0));
     Require(scePadUnknown_n3kSX62fgNo() == PAD_OK);
+    PadVrControllerCombinedState combined{};
+    combined.bytes[0] = 1;
+    Require(scePadVrControllerReadCombinedState(handle, handle, &combined) == 0);
+    Require(combined.bytes[0] == 0);
+    Require(scePadVrControllerReadCombinedState(handle, handle, nullptr) == PAD_ERROR_INVALID_ARG);
+    Require(scePadVrControllerReadCombinedState(handle + 1, handle, &combined) == PAD_ERROR_INVALID_HANDLE);
     Require(scePadSetVibrationTriggerEffectWeakWhileEmbeddedMicInUse(true) == 0);
     Require(scePadSetAngularVelocityDeadbandState(handle, false) == 0);
     Require(scePadSetAngularVelocityDeadbandState(handle + 1, false) == PAD_ERROR_INVALID_HANDLE);

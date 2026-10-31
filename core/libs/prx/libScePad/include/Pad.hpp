@@ -104,7 +104,9 @@ struct PadLotusButtonData;
 struct PadVersionInfo;
 struct PadTelemetryInfo;
 struct PadPortInfo;
-struct PadVrControllerCombinedState;
+struct PadVrControllerCombinedState {
+    std::uint8_t bytes[128];
+};
 struct PadLeonardoData;
 struct PadLeonardoUniqueData;
 struct PadHistoryData;
