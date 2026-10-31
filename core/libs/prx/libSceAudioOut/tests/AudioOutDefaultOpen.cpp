@@ -65,6 +65,20 @@ int main(int argc, char** argv) {
         } else if (mode == "unknown") {
             driver = "wasapi";
             outputDevices = -1;
+        } else if (mode == "device_id") {
+            driver = "wasapi";
+            outputDevices = 2;
+            const int deviceHandle = sceAudioOutDeviceIdOpen(0x1122334455667788ull, 0, 7, 256, 48000, 1);
+            Require(deviceHandle >= 1, "the device id port did not open");
+            Require(opened == 1, "the device id port did not open the default output");
+            const std::int16_t block[256 * 2] = {};
+            Require(sceAudioOutOutput(deviceHandle, block) == 256, "the device id port did not take a block");
+            Require(sceAudioOutClose(deviceHandle) == 0, "the device id port did not close");
+            Require(closed == opened, "the default output was not closed with its device id port");
+            Require(sceAudioOutDeviceIdOpen(1, 99, 0, 256, 48000, 1) == -2144993270, "an invalid port type must be refused");
+            Require(sceAudioOutDeviceIdOpen(1, 0, 0, 256, -1, 1) == -2144993272, "a negative frequency must be refused");
+            std::puts("device id open tests passed");
+            return 0;
         } else {
             Require(false, "invalid default open mode");
         }
