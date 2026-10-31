@@ -245,6 +245,8 @@ static void CheckHandleQueries(int user, int handle) {
     Require(scePadResetLightBarAllByPortType(PAD_PORT_TYPE_STANDARD) == PAD_OK && !LightBarValid());
     Require(scePadSetLightBar(handle, &color) == PAD_OK && LightBarValid());
     Require(scePadResetLightBarAll() == PAD_OK && !LightBarValid());
+    Require(scePadDisableTransportButtons(true) == PAD_OK);
+    Require(scePadDisableTransportButtons(false) == PAD_OK);
     Require(scePadClose_nid_postfix(special) == PAD_OK);
     Require(!scePadIsValidHandle(special, PAD_PORT_TYPE_SPECIAL));
 }

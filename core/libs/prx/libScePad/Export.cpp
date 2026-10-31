@@ -699,8 +699,8 @@ int APS5_VABI scePadSetUserNumber(std::int32_t handle, std::int32_t number) {
 }
 
 int APS5_VABI scePadDisableTransportButtons(bool disabled) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    (void)disabled;
+    return PAD_OK;
 }
 
 int APS5_VABI scePadSetLotusIrCodeSetStart(std::int32_t handle, std::uint8_t codeSet, std::uint16_t code, std::size_t dataSize) {
