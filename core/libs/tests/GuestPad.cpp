@@ -689,6 +689,18 @@ static void CheckAccessibilityControllerState(int handle) {
     Require(state == 0);
 }
 
+static void CheckVrControllerReadCombinedState(int handle) {
+    std::array<std::uint8_t, 128> combined{};
+    combined.fill(0xcd);
+    auto* out = reinterpret_cast<PadVrControllerCombinedState*>(combined.data());
+    Require(scePadVrControllerReadCombinedState(handle + 1, handle, out) == PAD_ERROR_INVALID_HANDLE);
+    Require(scePadVrControllerReadCombinedState(handle, handle + 1, out) == PAD_ERROR_INVALID_HANDLE);
+    Require(combined[0] == 0xcd);
+    Require(scePadVrControllerReadCombinedState(handle, handle, nullptr) == PAD_ERROR_INVALID_ARG);
+    Require(scePadVrControllerReadCombinedState(handle, handle, out) == PAD_OK);
+    Require(std::all_of(combined.begin(), combined.end(), [](std::uint8_t byte) { return byte == 0; }));
+}
+
 static void CheckControllerType(int handle) {
     std::int32_t type = -1;
     Require(scePadGetControllerType(handle + 1, nullptr) == PAD_ERROR_INVALID_ARG);
@@ -827,6 +839,10 @@ int main() {
     Require(scePadGetAccessibilityControllerState(PAD_HANDLE, nullptr) == PAD_ERROR_NOT_INITIALIZED);
     Require(scePadGetAccessibilityControllerState(PAD_HANDLE, &accessibilityState) == PAD_ERROR_NOT_INITIALIZED);
     Require(accessibilityState == 7);
+    std::array<std::uint8_t, 128> combinedBeforeInit{};
+    combinedBeforeInit.fill(0xcd);
+    Require(scePadVrControllerReadCombinedState(PAD_HANDLE, PAD_HANDLE, reinterpret_cast<PadVrControllerCombinedState*>(combinedBeforeInit.data())) == PAD_ERROR_NOT_INITIALIZED);
+    Require(combinedBeforeInit[0] == 0xcd);
     std::int32_t controllerType = -1;
     Require(scePadGetControllerType(PAD_HANDLE, nullptr) == PAD_ERROR_NOT_INITIALIZED);
     Require(scePadGetControllerType(PAD_HANDLE, &controllerType) == PAD_ERROR_NOT_INITIALIZED);
@@ -943,6 +959,7 @@ int main() {
     CheckRemoteController(handle);
     CheckTrackerDevices(handle);
     CheckAccessibilityControllerState(handle);
+    CheckVrControllerReadCombinedState(handle);
     CheckIsValidHandle(user, handle);
     CheckLightBarResets(user, handle);
     CheckVibrationForce(user, handle);
