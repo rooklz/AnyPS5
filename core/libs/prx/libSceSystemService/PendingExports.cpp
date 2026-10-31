@@ -21,6 +21,7 @@ constexpr std::int32_t FirstPSButtonEventType = 0x20000001;
 constexpr std::int32_t LastPSButtonEventType = 0x20000002;
 
 std::atomic<std::intptr_t> nextActivationHandle{0x1000};
+std::atomic<bool> shellBgmCpuBudgetHeld{false};
 
 }
 
@@ -542,7 +543,7 @@ int APS5_VABI sceShellCoreUtilAccessibilityZoomUnlock() {
 }
 
 int APS5_VABI sceShellCoreUtilAcquireBgmCpuBudget() {
-    NotImplemented_nid_no_patch(__func__);
+    shellBgmCpuBudgetHeld.store(true, std::memory_order_relaxed);
     return 0;
 }
 
@@ -1096,13 +1097,11 @@ bool APS5_VABI sceShellCoreUtilIsAccessibilityZoomLocked(std::int32_t appId) {
 }
 
 bool APS5_VABI sceShellCoreUtilIsBgmCpuBudgetAcquired() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return shellBgmCpuBudgetHeld.load(std::memory_order_relaxed);
 }
 
 bool APS5_VABI sceShellCoreUtilIsBgmCpuBudgetAvailable() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return true;
 }
 
 bool APS5_VABI sceShellCoreUtilIsExternalStorageAppMoveInProgress() {
@@ -1316,7 +1315,7 @@ int APS5_VABI sceShellCoreUtilPreNotifyOfSharePlay() {
 }
 
 int APS5_VABI sceShellCoreUtilReleaseBgmCpuBudget() {
-    NotImplemented_nid_no_patch(__func__);
+    shellBgmCpuBudgetHeld.store(false, std::memory_order_relaxed);
     return 0;
 }
 
@@ -1581,8 +1580,7 @@ int APS5_VABI sceSystemModalDialogOpen(const char* message) {
 }
 
 int APS5_VABI sceSystemServiceAcquireBgmCpuBudget() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return sceShellCoreUtilAcquireBgmCpuBudget();
 }
 
 int APS5_VABI sceSystemServiceAcquireFb0() {
@@ -1952,8 +1950,7 @@ int APS5_VABI sceSystemServiceInvokeAppLaunchLink(const char* uri) {
 }
 
 bool APS5_VABI sceSystemServiceIsBgmCpuBudgetAvailable() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return sceShellCoreUtilIsBgmCpuBudgetAvailable();
 }
 
 int APS5_VABI sceSystemServiceIsEyeToEyeDistanceAdjusted(std::uint32_t userId, std::uint8_t* adjusted) {
@@ -2068,8 +2065,7 @@ int APS5_VABI sceSystemServiceRegisterDaemon() {
 }
 
 int APS5_VABI sceSystemServiceReleaseBgmCpuBudget() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return sceShellCoreUtilReleaseBgmCpuBudget();
 }
 
 int APS5_VABI sceSystemServiceReleaseFb0() {

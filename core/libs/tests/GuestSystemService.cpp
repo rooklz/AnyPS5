@@ -89,6 +89,21 @@ void TestRunningBigApp() {
     TestBigAppList(sceSystemServiceGetAppIdListOfBigApp);
 }
 
+void TestBgmCpuBudget() {
+    Require(sceShellCoreUtilIsBgmCpuBudgetAvailable());
+    Require(sceSystemServiceIsBgmCpuBudgetAvailable());
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceShellCoreUtilAcquireBgmCpuBudget() == 0);
+    Require(sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceSystemServiceAcquireBgmCpuBudget() == 0);
+    Require(sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceSystemServiceReleaseBgmCpuBudget() == 0);
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceShellCoreUtilAcquireBgmCpuBudget() == 0);
+    Require(sceShellCoreUtilReleaseBgmCpuBudget() == 0);
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+}
+
 void TestPlayerDialogParam() {
     alignas(8) unsigned char buffer[0x100];
     std::memset(buffer, 0xab, sizeof(buffer));
@@ -207,5 +222,6 @@ int main() {
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();
+    TestBgmCpuBudget();
     TestPlayerDialogParam();
 }
