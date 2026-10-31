@@ -686,6 +686,10 @@ int APS5_VABI sceAudioOutSetMainOutput() {
     return 0;
 }
 
+int APS5_VABI sceAudioOutChangeAppModuleState(void) {
+    return 0;
+}
+
 int APS5_VABI sceAudioOutSetMixLevelPadSpk(int handle, std::uint32_t mixLevel) {
     std::lock_guard<std::mutex> lock(g_mutex);
     Port* port = getPort(handle);
