@@ -2086,7 +2086,10 @@ int APS5_VABI sceSaveDataInitialize(const void* init) {
 
 int APS5_VABI sceSaveDataMount(const SaveDataMountPs4* mount, SaveDataMountResult* mount_result) {
     if (mount == nullptr || mount_result == nullptr || mount->dir_name == nullptr) return SAVE_DATA_ERROR_PARAMETER;
-    if (mount->title_id != nullptr) NotImplemented_nid_no_patch("sceSaveDataMount of another title's save data");
+    const auto* title_id = static_cast<const SceSaveDataTitleId*>(mount->title_id);
+    if (title_id != nullptr && std::strncmp(title_id->data, GetAppTitleId_nid_postfix().value, sizeof(title_id->data)) != 0) {
+        return SAVE_DATA_ERROR_NOT_FOUND;
+    }
     SaveDataMount3 converted{};
     converted.user_id = mount->user_id;
     converted.dir_name = mount->dir_name;
