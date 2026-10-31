@@ -83,6 +83,15 @@ void TestRunningAppState() {
     TestRunningAppAnswer<bool>(sceLncUtilIsSpeculativeLaunch, false, true, LNC_UTIL_ERROR_INVALID_ARGUMENT);
 }
 
+void TestLncUtilCpuBudget() {
+    Require(sceLncUtilAcquireCpuBudgetOfExtraAudioDevices() == 0);
+    Require(sceLncUtilAcquireCpuBudgetOfImeForBigApp() == 0);
+    Require(sceLncUtilAcquireCpuBudgetOfInGameStore() == 0);
+    Require(sceLncUtilReleaseCpuBudgetOfExtraAudioDevices() == 0);
+    Require(sceLncUtilReleaseCpuBudgetOfImeForBigApp() == 0);
+    Require(sceLncUtilReleaseCpuBudgetOfInGameStore() == 0);
+}
+
 void TestRunningBigApp() {
     Require(sceLncUtilGetAppIdOfRunningBigApp() == sceSystemServiceGetAppIdOfRunningBigApp());
     TestBigAppList(sceLncUtilGetAppIdListOfBigApp);
@@ -207,5 +216,6 @@ int main() {
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();
+    TestLncUtilCpuBudget();
     TestPlayerDialogParam();
 }
