@@ -24,6 +24,7 @@
 
 - [scePadEnableExtensionPort](../../../core/libs/prx/libScePad/Export.cpp) returns success without changing extension-port state. The boolean argument is recovered; connected-device behavior is not modeled.
 - [scePadSetLightBarBaseBrightness, scePadDisableTriggerEffect](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - return success for known handles without changing hardware states. `scePadIsLightBarBaseBrightnessControllable` reports 1 while the modifier is a no-op.
+- [scePadSetAutoPowerOffCount](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - returns success without changing controller auto power-off timing; the count argument is recovered. The host has no DualSense auto power-off policy to apply.
 
 ### Unknown function info
 
