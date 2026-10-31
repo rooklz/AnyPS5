@@ -22,6 +22,12 @@ constexpr std::int32_t LastPSButtonEventType = 0x20000002;
 
 std::atomic<std::intptr_t> nextActivationHandle{0x1000};
 
+int WriteShellCoreInactiveFlag(bool* active) {
+    if (active == nullptr) return ShellCoreInvalidArgument;
+    *active = false;
+    return 0;
+}
+
 }
 
 static_assert(sizeof(ShellCoreErrorDialogParam) == 24);
@@ -866,13 +872,11 @@ int APS5_VABI sceShellCoreUtilGetFsckProgress(const char* titleId, std::uint32_t
 }
 
 int APS5_VABI sceShellCoreUtilGetGameLiveStreamingStatus(bool* active) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return WriteShellCoreInactiveFlag(active);
 }
 
 bool APS5_VABI sceShellCoreUtilGetGnmCompositorOnScreenProfilerFlag() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 int APS5_VABI sceShellCoreUtilGetGpuLoadEmulationMode() {
@@ -986,8 +990,7 @@ int APS5_VABI sceShellCoreUtilGetPsnAccountInfo(ShellCorePsnAccountInfoFirst* fi
 }
 
 int APS5_VABI sceShellCoreUtilGetRemotePlayStatus(bool* active) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return WriteShellCoreInactiveFlag(active);
 }
 
 int APS5_VABI sceShellCoreUtilGetRunLevel() {
@@ -996,13 +999,11 @@ int APS5_VABI sceShellCoreUtilGetRunLevel() {
 }
 
 int APS5_VABI sceShellCoreUtilGetSharePlayStatus(bool* active) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return WriteShellCoreInactiveFlag(active);
 }
 
 int APS5_VABI sceShellCoreUtilGetSocialScreenStatus(bool* active) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return WriteShellCoreInactiveFlag(active);
 }
 
 int APS5_VABI sceShellCoreUtilGetSplashScreenState(std::int32_t appId) {
@@ -1116,8 +1117,7 @@ int APS5_VABI sceShellCoreUtilIsEyeToEyeDistanceAdjusted(std::uint32_t userId, s
 }
 
 bool APS5_VABI sceShellCoreUtilIsGameLiveStreamingOnAir() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 int APS5_VABI sceShellCoreUtilIsIDUState() {
@@ -1156,18 +1156,15 @@ bool APS5_VABI sceShellCoreUtilIsPowerSaveAlertRequested() {
 }
 
 bool APS5_VABI sceShellCoreUtilIsRemotePlayCpuBudgetAcquired() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 bool APS5_VABI sceShellCoreUtilIsScreenSaverOn() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 bool APS5_VABI sceShellCoreUtilIsSharePlayCpuBudgetAcquired() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 int APS5_VABI sceShellCoreUtilIsShowCrashReport() {
@@ -1962,13 +1959,11 @@ int APS5_VABI sceSystemServiceIsEyeToEyeDistanceAdjusted(std::uint32_t userId, s
 }
 
 bool APS5_VABI sceSystemServiceIsGameLiveStreamingOnAir() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 bool APS5_VABI sceSystemServiceIsScreenSaverOn() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 bool APS5_VABI sceSystemServiceIsShellUiFgAndGameBgCpuMode() {

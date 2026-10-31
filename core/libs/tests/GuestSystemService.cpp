@@ -83,6 +83,26 @@ void TestRunningAppState() {
     TestRunningAppAnswer<bool>(sceLncUtilIsSpeculativeLaunch, false, true, LNC_UTIL_ERROR_INVALID_ARGUMENT);
 }
 
+void TestShellInactiveFlags() {
+    constexpr int shellInvalidArgument = static_cast<int>(0x80E30005u);
+    bool active = true;
+    Require(sceShellCoreUtilGetGameLiveStreamingStatus(nullptr) == shellInvalidArgument && active);
+    Require(sceShellCoreUtilGetGameLiveStreamingStatus(&active) == 0 && !active);
+    active = true;
+    Require(sceShellCoreUtilGetRemotePlayStatus(&active) == 0 && !active);
+    active = true;
+    Require(sceShellCoreUtilGetSharePlayStatus(&active) == 0 && !active);
+    active = true;
+    Require(sceShellCoreUtilGetSocialScreenStatus(&active) == 0 && !active);
+    Require(!sceShellCoreUtilGetGnmCompositorOnScreenProfilerFlag());
+    Require(!sceShellCoreUtilIsGameLiveStreamingOnAir());
+    Require(!sceShellCoreUtilIsScreenSaverOn());
+    Require(!sceShellCoreUtilIsRemotePlayCpuBudgetAcquired());
+    Require(!sceShellCoreUtilIsSharePlayCpuBudgetAcquired());
+    Require(!sceSystemServiceIsGameLiveStreamingOnAir());
+    Require(!sceSystemServiceIsScreenSaverOn());
+}
+
 void TestRunningBigApp() {
     Require(sceLncUtilGetAppIdOfRunningBigApp() == sceSystemServiceGetAppIdOfRunningBigApp());
     TestBigAppList(sceLncUtilGetAppIdListOfBigApp);
@@ -207,5 +227,6 @@ int main() {
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();
+    TestShellInactiveFlags();
     TestPlayerDialogParam();
 }
