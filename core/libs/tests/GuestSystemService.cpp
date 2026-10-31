@@ -83,6 +83,20 @@ void TestRunningAppState() {
     TestRunningAppAnswer<bool>(sceLncUtilIsSpeculativeLaunch, false, true, LNC_UTIL_ERROR_INVALID_ARGUMENT);
 }
 
+void TestBgmCpuBudget() {
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceShellCoreUtilIsBgmCpuBudgetAvailable());
+    Require(sceSystemServiceIsBgmCpuBudgetAvailable());
+    Require(sceShellCoreUtilAcquireBgmCpuBudget() == 0);
+    Require(sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceSystemServiceAcquireBgmCpuBudget() == 0);
+    Require(sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceSystemServiceReleaseBgmCpuBudget() == 0);
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceShellCoreUtilReleaseBgmCpuBudget() == 0);
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+}
+
 void TestRunningBigApp() {
     Require(sceLncUtilGetAppIdOfRunningBigApp() == sceSystemServiceGetAppIdOfRunningBigApp());
     TestBigAppList(sceLncUtilGetAppIdListOfBigApp);
@@ -207,5 +221,6 @@ int main() {
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();
+    TestBgmCpuBudget();
     TestPlayerDialogParam();
 }
