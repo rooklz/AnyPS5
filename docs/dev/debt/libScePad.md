@@ -23,6 +23,7 @@
 ### Silent stubs
 
 - [scePadEnableExtensionPort](../../../core/libs/prx/libScePad/Export.cpp) returns success without changing extension-port state. The boolean argument is recovered; connected-device behavior is not modeled.
+- [scePadDisableTransportButtons](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - returns success without changing transport-button routing. The boolean argument is recovered; what the console disables is unmeasured.
 - [scePadSetLightBarBaseBrightness, scePadDisableTriggerEffect](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - return success for known handles without changing hardware states. `scePadIsLightBarBaseBrightnessControllable` reports 1 while the modifier is a no-op.
 
 ### Unknown function info
