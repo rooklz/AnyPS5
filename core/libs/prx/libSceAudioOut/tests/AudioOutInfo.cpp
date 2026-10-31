@@ -14,5 +14,8 @@ int main() {
     Require(sceAudioOutGetSimulatedHandleStatusInfo() == static_cast<int>(0x809B00FF), "simulated handle status info is not supported");
     Require(sceAudioOutGetInfoOpenNum() == 0, "open port count info returns 0");
     Require(sceAudioOutGetInfo() == 0, "port info returns 0");
+    Require(sceAudioOutSetPadJackVolume() == 0, "pad jack volume returns success");
+    Require(sceAudioOutSetUsbVolume() == 0, "usb volume returns success");
+    Require(sceAudioOutSetCaesarVolume() == 0, "caesar volume returns success");
     std::puts("audio out info calls: PASS");
 }

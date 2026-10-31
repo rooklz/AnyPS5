@@ -105,17 +105,14 @@ int APS5_VABI sceAudioOutSetPadSpkVolume(std::int32_t, std::int32_t) {
 }
 
 int APS5_VABI sceAudioOutSetPadJackVolume(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
 int APS5_VABI sceAudioOutSetUsbVolume(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
 int APS5_VABI sceAudioOutSetCaesarVolume(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
