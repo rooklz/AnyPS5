@@ -23,6 +23,7 @@
 ### Silent stubs
 
 - [scePadEnableExtensionPort](../../../core/libs/prx/libScePad/Export.cpp) returns success without changing extension-port state. The boolean argument is recovered; connected-device behavior is not modeled.
+- [scePadEnableUsbConnection, scePadEnableAutoDetect, scePadEnablePlayPauseEmulation](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - return success without changing USB connection policy, controller auto-detection or play/pause emulation. The boolean arguments are recovered; host pad I/O has no matching system services.
 - [scePadSetLightBarBaseBrightness, scePadDisableTriggerEffect](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - return success for known handles without changing hardware states. `scePadIsLightBarBaseBrightnessControllable` reports 1 while the modifier is a no-op.
 
 ### Unknown function info

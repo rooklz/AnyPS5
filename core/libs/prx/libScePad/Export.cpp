@@ -584,18 +584,18 @@ int APS5_VABI scePadSetAutoPowerOffCount(std::int32_t count) {
 }
 
 int APS5_VABI scePadEnableUsbConnection(bool enabled) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    (void)enabled;
+    return PAD_OK;
 }
 
 int APS5_VABI scePadEnableAutoDetect(bool enabled) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    (void)enabled;
+    return PAD_OK;
 }
 
 int APS5_VABI scePadEnablePlayPauseEmulation(bool enabled) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    (void)enabled;
+    return PAD_OK;
 }
 
 int APS5_VABI scePadDisableTrackingLedBatterySaver(bool disabled) {
