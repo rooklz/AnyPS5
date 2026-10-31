@@ -432,8 +432,10 @@ int APS5_VABI scePadVrControllerRead(std::int32_t handle, PadVrControllerData* d
 }
 
 int APS5_VABI scePadVrControllerGetTriggerEffectState(std::int32_t leftHandle, std::int32_t rightHandle, PadTriggerEffectStateInformation* states) {
- NotImplemented_nid_no_patch(__func__);
- return 0;
+ if (states == nullptr) return PAD_ERROR_INVALID_ARG;
+ if (!KnownHandle(leftHandle) || !KnownHandle(rightHandle)) return PAD_ERROR_INVALID_HANDLE;
+ std::memset(states, 0, sizeof(*states));
+ return PAD_OK;
 }
 
 int APS5_VABI scePadVrControllerReadState(int handle, PadVrControllerData* state) {
@@ -444,13 +446,15 @@ int APS5_VABI scePadVrControllerReadState(int handle, PadVrControllerData* state
 }
 
 int APS5_VABI scePadVrControllerSetTriggerEffect(std::int32_t handle, const PadVrTriggerEffect* effect) {
- NotImplemented_nid_no_patch(__func__);
- return 0;
+ if (!KnownHandle(handle)) return PAD_ERROR_INVALID_HANDLE;
+ if (effect == nullptr) return PAD_ERROR_INVALID_ARG;
+ return PAD_OK;
 }
 
 int APS5_VABI scePadVrControllerSetTriggerEffects(std::int32_t leftHandle, std::int32_t rightHandle, const PadVrTriggerEffects* effects) {
- NotImplemented_nid_no_patch(__func__);
- return 0;
+ if (effects == nullptr) return PAD_ERROR_INVALID_ARG;
+ if (!KnownHandle(leftHandle) || !KnownHandle(rightHandle)) return PAD_ERROR_INVALID_HANDLE;
+ return PAD_OK;
 }
 
 int APS5_VABI scePadIsRemoteController(int handle, bool* remote) {
@@ -472,8 +476,10 @@ int APS5_VABI scePadUnknown_n3kSX62fgNo() {
 }
 
 int APS5_VABI scePadVrControllerGetTriggerEffectStates(std::int32_t leftHandle, std::int32_t rightHandle, PadTriggerEffectStateInformation* states) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+ if (states == nullptr) return PAD_ERROR_INVALID_ARG;
+ if (!KnownHandle(leftHandle) || !KnownHandle(rightHandle)) return PAD_ERROR_INVALID_HANDLE;
+ std::memset(states, 0, sizeof(*states));
+ return PAD_OK;
 }
 
 int APS5_VABI scePadGetAccessibilityControllerState(int handle, std::uint32_t* state) {
