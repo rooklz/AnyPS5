@@ -269,12 +269,19 @@ static void CheckNetstat() {
     Require(Failed(sceNetShowIfconfigWithMemory(-1), 9));
     Require(Failed(sceNetShowPolicyWithMemory(-1), 9));
     Require(Failed(sceNetShowRoute6WithMemory(-1), 9));
+    std::array<char, 64> showBuffer{};
+    Require(Failed(sceNetShowIfconfigForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), -1), 9));
     const int pool = sceNetPoolCreate("netstat", 4096, 0);
     Require(pool > 0);
     Require(sceNetShowRouteWithMemory(pool) == 0);
     Require(sceNetShowIfconfigWithMemory(pool) == 0);
     Require(sceNetShowPolicyWithMemory(pool) == 0);
     Require(sceNetShowRoute6WithMemory(pool) == 0);
+    Require(sceNetShowIfconfigForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool) == 0);
+    Require(sceNetShowRouteForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool) == 0);
+    Require(sceNetShowNetstatForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool) == 0);
+    Require(sceNetShowNetstatExForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool, 0) == 0);
+    Require(sceNetShowRoute6ForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool) == 0);
     const auto empty = CaptureNetstat(pool);
     Require(empty.find("bytes=4096 sockets=0") != std::string::npos);
     const int socket = sceNetSocket("netstat", 2, 1, 0);
@@ -299,6 +306,11 @@ static void CheckNetstat() {
     Require(Failed(sceNetShowIfconfigWithMemory(pool), 9));
     Require(Failed(sceNetShowPolicyWithMemory(pool), 9));
     Require(Failed(sceNetShowRoute6WithMemory(pool), 9));
+    Require(Failed(sceNetShowIfconfigForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool), 9));
+    Require(Failed(sceNetShowRouteForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool), 9));
+    Require(Failed(sceNetShowNetstatForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool), 9));
+    Require(Failed(sceNetShowNetstatExForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool, 0), 9));
+    Require(Failed(sceNetShowRoute6ForBuffer(showBuffer.data(), static_cast<int>(showBuffer.size()), pool), 9));
 }
 
 static void CheckPoolStats() {
