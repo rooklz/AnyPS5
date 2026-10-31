@@ -89,6 +89,13 @@ void TestRunningBigApp() {
     TestBigAppList(sceSystemServiceGetAppIdListOfBigApp);
 }
 
+void TestLncUtilImeInGameStoreCpuBudget() {
+    Require(sceLncUtilAcquireCpuBudgetOfImeForBigApp() == 0);
+    Require(sceLncUtilAcquireCpuBudgetOfInGameStore() == 0);
+    Require(sceLncUtilReleaseCpuBudgetOfInGameStore() == 0);
+    Require(sceLncUtilReleaseCpuBudgetOfImeForBigApp() == 0);
+}
+
 void TestPlayerDialogParam() {
     alignas(8) unsigned char buffer[0x100];
     std::memset(buffer, 0xab, sizeof(buffer));
@@ -205,6 +212,7 @@ int main() {
     event.event_type = 7;
     Require(sceSystemServiceReceiveEvent(&event) == SYSTEM_SERVICE_ERROR_NO_EVENT);
     TestRunningBigApp();
+    TestLncUtilImeInGameStoreCpuBudget();
     TestRunningAppUser();
     TestRunningAppState();
     TestPlayerDialogParam();

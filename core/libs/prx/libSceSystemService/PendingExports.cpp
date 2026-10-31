@@ -21,6 +21,8 @@ constexpr std::int32_t FirstPSButtonEventType = 0x20000001;
 constexpr std::int32_t LastPSButtonEventType = 0x20000002;
 
 std::atomic<std::intptr_t> nextActivationHandle{0x1000};
+std::atomic<bool> lncImeBigAppCpuBudgetHeld{false};
+std::atomic<bool> lncInGameStoreCpuBudgetHeld{false};
 
 }
 
@@ -165,12 +167,12 @@ int APS5_VABI sceLncUtilAcquireCpuBudgetOfExtraAudioDevices() {
 }
 
 int APS5_VABI sceLncUtilAcquireCpuBudgetOfImeForBigApp() {
-    NotImplemented_nid_no_patch(__func__);
+    lncImeBigAppCpuBudgetHeld.store(true, std::memory_order_relaxed);
     return 0;
 }
 
 int APS5_VABI sceLncUtilAcquireCpuBudgetOfInGameStore() {
-    NotImplemented_nid_no_patch(__func__);
+    lncInGameStoreCpuBudgetHeld.store(true, std::memory_order_relaxed);
     return 0;
 }
 
@@ -437,12 +439,12 @@ int APS5_VABI sceLncUtilReleaseCpuBudgetOfExtraAudioDevices() {
 }
 
 int APS5_VABI sceLncUtilReleaseCpuBudgetOfImeForBigApp() {
-    NotImplemented_nid_no_patch(__func__);
+    lncImeBigAppCpuBudgetHeld.store(false, std::memory_order_relaxed);
     return 0;
 }
 
 int APS5_VABI sceLncUtilReleaseCpuBudgetOfInGameStore() {
-    NotImplemented_nid_no_patch(__func__);
+    lncInGameStoreCpuBudgetHeld.store(false, std::memory_order_relaxed);
     return 0;
 }
 
