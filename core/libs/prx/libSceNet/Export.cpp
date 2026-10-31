@@ -2942,17 +2942,26 @@ int APS5_VABI sceNetUsleep(int microseconds) {
 }
 
 int APS5_VABI sceNetShowIfconfigForBuffer(char* buffer, std::int32_t bufferSize, std::int32_t poolId) {
-    NotImplemented_nid_no_patch(__func__);
+    (void)buffer;
+    (void)bufferSize;
+    std::lock_guard lk(g_mutex);
+    if (g_pools.find(poolId) == g_pools.end()) return fail(NET_EBADF);
     return 0;
 }
 
 int APS5_VABI sceNetShowRouteForBuffer(char* buffer, std::int32_t bufferSize, std::int32_t poolId) {
-    NotImplemented_nid_no_patch(__func__);
+    (void)buffer;
+    (void)bufferSize;
+    std::lock_guard lk(g_mutex);
+    if (g_pools.find(poolId) == g_pools.end()) return fail(NET_EBADF);
     return 0;
 }
 
 int APS5_VABI sceNetShowNetstatForBuffer(char* buffer, std::int32_t bufferSize, std::int32_t poolId) {
-    NotImplemented_nid_no_patch(__func__);
+    (void)buffer;
+    (void)bufferSize;
+    std::lock_guard lk(g_mutex);
+    if (g_pools.find(poolId) == g_pools.end()) return fail(NET_EBADF);
     return 0;
 }
 
