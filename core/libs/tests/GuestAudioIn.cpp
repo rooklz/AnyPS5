@@ -49,6 +49,7 @@ void TestOpenEx() {
     port = sceAudioInHqOpenEx(user, 0, 0, 7, 256, 16000, 2);
     Require(port > 0 && sceAudioInClose(port) == 0);
     Require(sceAudioInSetCompressorPreGain() == 0 && sceAudioInSetNoiseGateThreshold() == 0);
+    Require(sceAudioInChangeAppModuleState() == 0);
 }
 
 void TestValidation() {
