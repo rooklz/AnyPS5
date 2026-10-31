@@ -104,6 +104,42 @@ void TestMountPs4() {
     Check(sceSaveDataUmount(&result.mount_point) == SaveDataErrorNotMounted, "umount unmounted point is NOT_MOUNTED");
 }
 
+bool ReportsNotImplemented(const SceSaveDataTitleId* title_id) {
+    SceSaveDataDirName dir{};
+    std::strcpy(dir.data, "kept");
+    SaveDataMountPs4 mount{};
+    mount.user_id = 1;
+    mount.title_id = title_id;
+    mount.dir_name = &dir;
+    mount.mount_mode = MountReadWrite;
+    SaveDataMountResult result{};
+    try {
+        sceSaveDataMount(&mount, &result);
+    } catch (const std::runtime_error& error) {
+        return std::string(error.what()) == "sceSaveDataMount of another title's save data not implemented";
+    }
+    return false;
+}
+
+void TestMountTitleId() {
+    SceSaveDataTitleId own{};
+    std::strcpy(own.data, "PPSA00000");
+    SceSaveDataDirName dir{};
+    std::strcpy(dir.data, "kept");
+    SaveDataMountPs4 mount{};
+    mount.user_id = 1;
+    mount.title_id = &own;
+    mount.dir_name = &dir;
+    mount.mount_mode = MountReadWrite;
+    SaveDataMountResult result{};
+    Check(sceSaveDataMount(&mount, &result) == 0, "mount with the running title id succeeds");
+    Check(result.mount_point.data[0] != '\0', "mount with the running title id writes mount point");
+    Check(sceSaveDataUmount(&result.mount_point) == 0, "umount of the running title's mount succeeds");
+    SceSaveDataTitleId other{};
+    std::strcpy(other.data, "PPSA00001");
+    Check(ReportsNotImplemented(&other), "mount with another title id still reports that it is not implemented");
+}
+
 }
 
 int main() {
@@ -111,11 +147,21 @@ int main() {
     std::filesystem::create_directories(root / "_sd" / "kept");
     const auto previous = std::filesystem::current_path();
     std::filesystem::current_path(root);
+    std::filesystem::create_directories("app0/sce_sys");
+    {
+        std::ofstream param("app0/sce_sys/param.json", std::ios::binary);
+        param << "{\"titleId\":\"PPSA00000\",\"localizedParameters\":{\"en-US\":{\"titleName\":\"Example\"}}}";
+        if (!param) {
+            std::fprintf(stderr, "param.json was not written\n");
+            return 1;
+        }
+    }
 
     TestTransferringMountPs4();
     TestDirNameSearchPs4();
     TestSaveDataMemoryV1();
     TestMountPs4();
+    TestMountTitleId();
 
     std::filesystem::current_path(previous);
     std::error_code error;
