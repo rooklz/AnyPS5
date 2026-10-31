@@ -2878,8 +2878,7 @@ int APS5_VABI sceNetSetsockoptEx(int socketId, int level, int option, const void
 }
 
 int APS5_VABI sceNetSocketInternal(const char* name, int domain, int type, int protocol) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return sceNetSocket(name, domain, type, protocol);
 }
 
 int APS5_VABI sceNetSyncCreate(NetSyncObject* sync, std::uint32_t signals, const char* name) {

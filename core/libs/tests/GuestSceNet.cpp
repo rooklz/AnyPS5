@@ -130,6 +130,16 @@ static void CheckSocketArgumentErrors() {
     }
 }
 
+static void CheckSocketInternal() {
+    for (const int family : {0, 99}) Require(Failed(sceNetSocketInternal(nullptr, family, 1, 6), 47));
+    for (const int family : {2, 28}) {
+        for (const int type : {0, 4, 99}) Require(Failed(sceNetSocketInternal(nullptr, family, type, 6), 43));
+    }
+    const int socket = sceNetSocketInternal("internal", 2, 1, 6);
+    Require(socket >= 0);
+    Require(sceNetSocketClose(socket) == 0);
+}
+
 static void CheckStreamSender(int family) {
     const auto addressSize = family == 2 ? 16u : 28u;
     const int listener = sceNetSocket(nullptr, family, 1, 6);
@@ -2234,6 +2244,7 @@ int main() {
     CheckEpollWritable();
     CheckSocketHostErrors();
     CheckSocketArgumentErrors();
+    CheckSocketInternal();
     CheckPoolStats();
     CheckPoolErrors();
     CheckStatisticsInfo();
