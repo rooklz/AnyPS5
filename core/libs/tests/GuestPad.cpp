@@ -1013,6 +1013,8 @@ int main() {
     Require(scePadDisableVibration(handle2 + 99, true) == PAD_ERROR_INVALID_HANDLE);
     Require(scePadDisableTriggerEffect(handle2, true) == PAD_OK);
     Require(scePadDisableTriggerEffect(handle2 + 99, true) == PAD_ERROR_INVALID_HANDLE);
+    Require(scePadSetTriggerEffectStrength(handle2, 128) == PAD_OK);
+    Require(scePadSetTriggerEffectStrength(handle2 + 99, 128) == PAD_ERROR_INVALID_HANDLE);
     Require(scePadIsLightBarBaseBrightnessControllable(handle2) == 1);
     Require(scePadIsLightBarBaseBrightnessControllable(handle2 + 99) == PAD_ERROR_INVALID_HANDLE);
     Require(scePadSetLightBarBaseBrightness(handle2, 1) == PAD_OK);
