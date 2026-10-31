@@ -238,6 +238,7 @@ static int CheckNoPlayGoFile(const char* root) {
     Require(scePlayGoGetEta(handle, &chunk, 1, &eta) == 0 && eta == 0);
     Require(scePlayGoPrefetchOptionalChunk(handle + 1, 0, nullptr) == badHandle);
     Require(scePlayGoPrefetchOptionalChunk(handle, 0, nullptr) == 0);
+    Require(scePlayGoSnapshot() == 0);
     Require(scePlayGoClose(handle + 1) == badHandle);
     Require(scePlayGoClose(handle) == 0);
     Require(scePlayGoTerminate() == 0);
