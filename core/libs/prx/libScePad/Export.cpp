@@ -534,8 +534,9 @@ int APS5_VABI scePadGetDataInternal(std::uint8_t port, PadData* data) {
 }
 
 int APS5_VABI scePadSetUserColor(std::int32_t handle, std::uint32_t color) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    (void)color;
+    if (!KnownHandle(handle)) return PAD_ERROR_INVALID_HANDLE;
+    return PAD_OK;
 }
 
 int APS5_VABI scePadDisableVibration(std::int32_t handle, bool disabled) {
