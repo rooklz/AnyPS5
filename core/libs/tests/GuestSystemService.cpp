@@ -204,6 +204,7 @@ int main() {
     SystemServiceEvent event;
     event.event_type = 7;
     Require(sceSystemServiceReceiveEvent(&event) == SYSTEM_SERVICE_ERROR_NO_EVENT);
+    Require(sceShellCoreUtilNotifyBgmCoreTermination() == 0 && sceSystemServiceNotifyBgmCoreTermination() == 0);
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();

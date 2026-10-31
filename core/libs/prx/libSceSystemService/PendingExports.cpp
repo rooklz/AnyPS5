@@ -1251,7 +1251,6 @@ int APS5_VABI sceShellCoreUtilNotificationRequestedForIDU(std::int64_t notificat
 }
 
 int APS5_VABI sceShellCoreUtilNotifyBgmCoreTermination() {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
@@ -2045,7 +2044,6 @@ int APS5_VABI sceSystemServiceNavigateToGoHome(std::uint32_t target) {
 }
 
 int APS5_VABI sceSystemServiceNotifyBgmCoreTermination() {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
