@@ -1017,6 +1017,8 @@ int main() {
     Require(scePadIsLightBarBaseBrightnessControllable(handle2 + 99) == PAD_ERROR_INVALID_HANDLE);
     Require(scePadSetLightBarBaseBrightness(handle2, 1) == PAD_OK);
     Require(scePadSetLightBarBaseBrightness(handle2 + 99, 1) == PAD_ERROR_INVALID_HANDLE);
+    Require(scePadSetUserNumber(handle2, 3) == PAD_OK);
+    Require(scePadSetUserNumber(handle2 + 99, 3) == PAD_ERROR_INVALID_HANDLE);
 
     PadSetPortConnected_nid_postfix(1, true);
     Require(scePadGetInfo_nid_postfix(&info) == PAD_OK);

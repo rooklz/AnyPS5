@@ -24,6 +24,7 @@
 
 - [scePadEnableExtensionPort](../../../core/libs/prx/libScePad/Export.cpp) returns success without changing extension-port state. The boolean argument is recovered; connected-device behavior is not modeled.
 - [scePadSetLightBarBaseBrightness, scePadDisableTriggerEffect](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - return success for known handles without changing hardware states. `scePadIsLightBarBaseBrightnessControllable` reports 1 while the modifier is a no-op.
+- [scePadSetUserNumber](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - returns success for known handles without storing a user number on the emulated pad. The `(int handle, int number)` signature is recovered; what the console associates with the number is unmeasured.
 
 ### Unknown function info
 
