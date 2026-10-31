@@ -4,6 +4,12 @@
 #include "SceTypes.hpp"
 #include "prx/libc/include/General.hpp"
 
+namespace {
+
+bool g_initialized = false;
+
+}
+
 extern "C" {
 
 int APS5_VABI sceFiosArchiveGetDecompressorThreadCount() {
@@ -122,7 +128,6 @@ int APS5_VABI sceFiosCachePrefetchFileSync() {
 }
 
 int APS5_VABI sceFiosCancelAllOps() {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
@@ -132,7 +137,6 @@ int APS5_VABI sceFiosClearTimeStamps() {
 }
 
 int APS5_VABI sceFiosCloseAllFiles() {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
@@ -172,12 +176,10 @@ int APS5_VABI sceFiosDHReadSync() {
 }
 
 int APS5_VABI sceFiosDLLInitialize() {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
 int APS5_VABI sceFiosDLLTerminate() {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
@@ -582,18 +584,16 @@ int APS5_VABI sceFiosIOFilterRemove() {
 }
 
 int APS5_VABI sceFiosInitialize() {
-    NotImplemented_nid_no_patch(__func__);
+    g_initialized = true;
     return 0;
 }
 
 int APS5_VABI sceFiosIsIdle() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return g_initialized ? 1 : 0;
 }
 
 int APS5_VABI sceFiosIsInitialized() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return g_initialized ? 1 : 0;
 }
 
 int APS5_VABI sceFiosIsSuspended() {
@@ -812,7 +812,7 @@ int APS5_VABI sceFiosSuspend() {
 }
 
 int APS5_VABI sceFiosTerminate() {
-    NotImplemented_nid_no_patch(__func__);
+    g_initialized = false;
     return 0;
 }
 
