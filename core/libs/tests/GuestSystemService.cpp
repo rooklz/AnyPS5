@@ -77,6 +77,10 @@ void TestRunningAppUser() {
     TestRunningAppAnswer<std::int32_t>(sceShellCoreUtilGetUserFocus, USER_SERVICE_INITIAL_USER_ID, Sentinel, SHELL_CORE_UTIL_ERROR_INVALID_ARGUMENT);
 }
 
+void TestLncUtilExtraAudioCpuBudgetAvailable() {
+    Require(sceLncUtilIsCpuBudgetOfExtraAudioDevicesAvailable());
+}
+
 void TestRunningAppState() {
     TestRunningAppAnswer<bool>(sceLncUtilIsAppSuspended, false, true, LNC_UTIL_ERROR_INVALID_ARGUMENT);
     TestRunningAppAnswer<bool>(sceSystemServiceIsAppSuspended, false, true, LNC_UTIL_ERROR_INVALID_ARGUMENT);
@@ -206,6 +210,7 @@ int main() {
     Require(sceSystemServiceReceiveEvent(&event) == SYSTEM_SERVICE_ERROR_NO_EVENT);
     TestRunningBigApp();
     TestRunningAppUser();
+    TestLncUtilExtraAudioCpuBudgetAvailable();
     TestRunningAppState();
     TestPlayerDialogParam();
 }
