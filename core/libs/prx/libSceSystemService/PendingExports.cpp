@@ -1251,8 +1251,7 @@ int APS5_VABI sceShellCoreUtilNotificationRequestedForIDU(std::int64_t notificat
 }
 
 int APS5_VABI sceShellCoreUtilNotifyBgmCoreTermination() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return SYSTEM_SERVICE_OK;
 }
 
 int APS5_VABI sceShellCoreUtilNotifyFsReadError(std::int32_t first, std::int32_t second, std::int32_t third, const char* detail) {
@@ -1376,8 +1375,8 @@ int APS5_VABI sceShellCoreUtilSetAppData(const char* key, const char* value) {
 }
 
 int APS5_VABI sceShellCoreUtilSetBgmProhibition(std::uint32_t value) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    static_cast<void>(value);
+    return SYSTEM_SERVICE_OK;
 }
 
 int APS5_VABI sceShellCoreUtilSetDeviceIndexBehavior(std::uint32_t behavior, std::int32_t userId, std::uint8_t scene) {
@@ -2045,8 +2044,7 @@ int APS5_VABI sceSystemServiceNavigateToGoHome(std::uint32_t target) {
 }
 
 int APS5_VABI sceSystemServiceNotifyBgmCoreTermination() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return SYSTEM_SERVICE_OK;
 }
 
 int APS5_VABI sceSystemServiceRaiseExceptionLocalProcess(std::int32_t appId, std::int32_t processId, std::uint64_t exception) {
