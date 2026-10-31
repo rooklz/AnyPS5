@@ -275,6 +275,12 @@ static void CheckNetstat() {
     Require(sceNetShowIfconfigWithMemory(pool) == 0);
     Require(sceNetShowPolicyWithMemory(pool) == 0);
     Require(sceNetShowRoute6WithMemory(pool) == 0);
+    std::array<char, 8> buffer{};
+    Require(sceNetShowIfconfigForBuffer(buffer.data(), static_cast<int>(buffer.size()), pool) == 0);
+    Require(sceNetShowRouteForBuffer(buffer.data(), static_cast<int>(buffer.size()), pool) == 0);
+    Require(sceNetShowNetstatForBuffer(buffer.data(), static_cast<int>(buffer.size()), pool) == 0);
+    Require(sceNetShowNetstatExForBuffer(buffer.data(), static_cast<int>(buffer.size()), pool, 0) == 0);
+    Require(sceNetShowRoute6ForBuffer(buffer.data(), static_cast<int>(buffer.size()), pool) == 0);
     const auto empty = CaptureNetstat(pool);
     Require(empty.find("bytes=4096 sockets=0") != std::string::npos);
     const int socket = sceNetSocket("netstat", 2, 1, 0);
@@ -299,6 +305,11 @@ static void CheckNetstat() {
     Require(Failed(sceNetShowIfconfigWithMemory(pool), 9));
     Require(Failed(sceNetShowPolicyWithMemory(pool), 9));
     Require(Failed(sceNetShowRoute6WithMemory(pool), 9));
+    Require(Failed(sceNetShowIfconfigForBuffer(nullptr, 0, pool), 9));
+    Require(Failed(sceNetShowRouteForBuffer(nullptr, 0, pool), 9));
+    Require(Failed(sceNetShowNetstatForBuffer(nullptr, 0, pool), 9));
+    Require(Failed(sceNetShowNetstatExForBuffer(nullptr, 0, pool, 0), 9));
+    Require(Failed(sceNetShowRoute6ForBuffer(nullptr, 0, pool), 9));
 }
 
 static void CheckPoolStats() {
