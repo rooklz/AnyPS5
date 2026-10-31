@@ -108,6 +108,17 @@ void TestPlayerDialogParam() {
     Require(sceSystemServiceLaunchPlayerDialog(buffer) == SYSTEM_SERVICE_OK);
 }
 
+void TestUserPartitionFreeSize() {
+    constexpr int shellCoreInvalidArgument = static_cast<int>(0x80E30005);
+    std::uint64_t freeSize = 0xdeadbeefdeadbeefULL;
+    std::uint64_t totalSize = 0xdeadbeefdeadbeefULL;
+    Require(sceShellCoreUtilGetFreeSizeOfUserPartition(nullptr, &totalSize) == shellCoreInvalidArgument);
+    Require(sceShellCoreUtilGetFreeSizeOfUserPartition(&freeSize, nullptr) == shellCoreInvalidArgument);
+    Require(sceShellCoreUtilGetFreeSizeOfUserPartition(&freeSize, &totalSize) == 0);
+    Require(freeSize == 0xdeadbeefdeadbeefULL && totalSize == 0xdeadbeefdeadbeefULL);
+    Require(sceShellCoreUtilGetFreeSizeOfAvContentsTmp() == 0);
+}
+
 }
 
 int main() {
@@ -207,5 +218,6 @@ int main() {
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();
+    TestUserPartitionFreeSize();
     TestPlayerDialogParam();
 }

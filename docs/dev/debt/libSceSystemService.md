@@ -10,6 +10,7 @@
 - [sceSystemServiceOpenTournamentOccurrence](../../../core/libs/prx/libSceSystemService/Export.cpp) (libSceSystemService) - returns success without opening the tournament occurrence: AnyPS5 has no system UI to open
 - [sceSystemServiceHideSplashScreen, sceSystemServiceLaunchPlayerDialog](../../../core/libs/prx/libSceSystemService/Export.cpp) (libSceSystemService) - AnyPS5 shows no splash screen to hide and has no system UI to open the player dialog in. `sceSystemServiceHideSplashScreen` returns success, and `sceSystemServiceLaunchPlayerDialog` returns `SYSTEM_SERVICE_ERROR_PARAMETER` for a null parameter and success otherwise, without reading the parameter. All ten titles checked call `sceSystemServiceHideSplashScreen`. Borderlands 4 (PPSA01494), Ghost of Tsushima (PPSA02225), Metal Gear Solid 4 (PPSA18194), MXGP 26 (PPSA30839), Super Meat Boy 3D (PPSA31162), Call of Duty: Black Ops II (PPSA34502) and Steins;Gate Re:Boot (PPSA36591) call `sceSystemServiceLaunchPlayerDialog`
 - [sceSystemServiceSetNoticeScreenSkipFlag, sceSystemServiceDisableNoticeScreenSkipFlagAutoSet](../../../core/libs/prx/libSceSystemService/Export.cpp) (libSceSystemService) - return success without storing anything. `sceSystemServiceGetNoticeScreenSkipFlag` returns `SYSTEM_SERVICE_ERROR_PARAMETER` for a null output and otherwise always reports `false`. Metal Gear Solid 4 (PPSA18194) imports both and calls `sceSystemServiceDisableNoticeScreenSkipFlagAutoSet` once
+- [sceShellCoreUtilGetFreeSizeOfUserPartition, sceShellCoreUtilGetFreeSizeOfAvContentsTmp](../../../core/libs/prx/libSceSystemService/PendingExports.cpp) (libSceSystemService) - return success without writing sizes, following [shadPS4](https://github.com/shadps4-emu/shadPS4/blob/1d8004a22feb0d5cc58828bac066018e80b6d73f/src/core/libraries/system/systemservice.cpp#L832-L840); `sceShellCoreUtilGetFreeSizeOfUserPartition` returns `0x80E30005` when either output pointer is null. Partition units and real free or total bytes are not measured on a console
 
 ### Unknown function info
 
@@ -105,8 +106,6 @@
 - [sceCoredumpSequenceHandlerGetCoredumpStatus](../../../core/libs/prx/libSceSystemService/Export.cpp) (libSceSystemService) - unknown signature
 - [sceCoredumpSequenceHandlerGetCoredumpStatusByAppId](../../../core/libs/prx/libSceSystemService/Export.cpp) (libSceSystemService) - unknown signature
 - [sceCoredumpSequenceHandlerCancelCoredump](../../../core/libs/prx/libSceSystemService/Export.cpp) (libSceSystemService) - unknown signature
-
-- [sceShellCoreUtilGetFreeSizeOfUserPartition, sceShellCoreUtilGetFreeSizeOfAvContentsTmp](../../../core/libs/prx/libSceSystemService/PendingExports.cpp) (libSceSystemService) - the units of the sizes and what the user partition's free and total sizes measure are not measured; shadPS4 stubs both as returning OK without writing an output ([systemservice.cpp L832-L840](https://github.com/shadps4-emu/shadPS4/blob/1d8004a22feb0d5cc58828bac066018e80b6d73f/src/core/libraries/system/systemservice.cpp#L832-L840)), so no value is known and both throw through `NotImplemented_nid_no_patch`
 
 ### Functional
 
