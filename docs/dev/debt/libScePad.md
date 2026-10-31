@@ -23,7 +23,8 @@
 ### Silent stubs
 
 - [scePadEnableExtensionPort](../../../core/libs/prx/libScePad/Export.cpp) returns success without changing extension-port state. The boolean argument is recovered; connected-device behavior is not modeled.
-- [scePadSetLightBarBaseBrightness, scePadDisableTriggerEffect](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - return success for known handles without changing hardware states. `scePadIsLightBarBaseBrightnessControllable` reports 1 while the modifier is a no-op.
+- [scePadSetLightBarBaseBrightness, scePadDisableTriggerEffect, scePadSetTriggerEffectStrength](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - return success for known handles without changing hardware states. `scePadIsLightBarBaseBrightnessControllable` reports 1 while the modifier is a no-op.
+- [scePadIsMoveReproductionModel](../../../core/libs/prx/libScePad/Export.cpp) (libScePad) - the `int (int handle)` signature is recovered; the library reports one DualSense to every title and no PlayStation Move controller is ever behind a handle, so the call answers 0 for any handle, as with [scePadIsMoveConnected](../../../core/libs/prx/libScePad/Export.cpp). The console's answer for an invalid handle is not measured
 
 ### Unknown function info
 
