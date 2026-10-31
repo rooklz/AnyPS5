@@ -3054,7 +3054,6 @@ int APS5_VABI sceNetConfigUpInterfaceWithFlags(std::uint32_t interfaceId, std::u
 }
 
 int APS5_VABI sceNetConfigCleanUpAllInterfaces(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
@@ -3444,7 +3443,6 @@ int APS5_VABI sceNetConfigRoutingStop(void) {
 }
 
 int APS5_VABI sceNetConfigRoutingShowRoutingConfig(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
@@ -3483,14 +3481,12 @@ int APS5_VABI sceNetDumpRead(std::int32_t dumpId, void* buffer, std::int32_t buf
     return 0;
 }
 
-int APS5_VABI sceNetEmulationDebugSettingsSet(const NetEmulationParameter* parameter, std::uint32_t flags) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+int APS5_VABI sceNetEmulationDebugSettingsSet(const NetEmulationParameter*, std::uint32_t) {
+    return fail(NET_EOPNOTSUPP);
 }
 
-int APS5_VABI sceNetEmulationDebugSettingsGet(NetEmulationParameter* parameter, std::uint32_t flags) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+int APS5_VABI sceNetEmulationDebugSettingsGet(NetEmulationParameter*, std::uint32_t) {
+    return fail(NET_EOPNOTSUPP);
 }
 
 int APS5_VABI sceNetEmulationSet(const NetEmulationParameter*, std::uint32_t) {
