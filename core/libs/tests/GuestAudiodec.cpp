@@ -483,4 +483,6 @@ int main() {
     TestMp3();
     TestAt9();
     for (std::uint32_t type = 1; type <= 3; ++type) Require(sceAudiodecTermLibrary(type) == 0);
+    Require(sceAudiodecUnregisterCodec() == 0);
+    Require(sceAudiodecGetAjmContext() == 0);
 }
