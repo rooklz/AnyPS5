@@ -994,6 +994,17 @@ void TestAmmRangesAboveHintedMaps() {
     Require(sceKernelMunmap(reinterpret_cast<std::uint64_t>(span), page) == 0);
 }
 
+void TestAmmOccupancyThresholdKeepsPoolIdle() {
+    for (const int threshold : {0, 1, 50, 100, 512}) {
+        Require(sceAmprAmmSetPageTablePoolOccupancyNotificationThreshold(threshold) == 0);
+    }
+    std::array<std::uint64_t, 4> stats{};
+    stats = {0x18, 0, 0, 0};
+    Require(sceAmprAmmGetUsageStatsData(reinterpret_cast<AmmUsageStatsData*>(stats.data())) == 0);
+    Require((stats[1] & 0xffffu) == 512u);
+    Require((stats[1] >> 16u) == 0u);
+}
+
 void TestAmmUsageStats() {
     std::array<std::uint64_t, 4> stats{};
     Require(sceAmprAmmGetUsageStatsData(nullptr) == static_cast<int>(0x80020016));
@@ -1818,6 +1829,7 @@ int main() {
     TestResolveSymbolicLink();
     TestGatherScatter();
     TestAmmRangesAboveHintedMaps();
+    TestAmmOccupancyThresholdKeepsPoolIdle();
     TestAmmUsageStats();
     TestAmmRemapKeepsPoolReferences();
     TestAmmMapFailureKeepsPoolOwnership();
