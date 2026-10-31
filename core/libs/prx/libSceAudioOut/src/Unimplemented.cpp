@@ -28,8 +28,7 @@ int APS5_VABI sceAudioOutGetHandleStatusInfo(void) {
 }
 
 int APS5_VABI sceAudioOutGetSimulatedHandleStatusInfo2(void) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return static_cast<int>(0x809B00FF);
 }
 
 int APS5_VABI sceAudioOutChangeAppModuleState(void) {
