@@ -108,6 +108,20 @@ void TestPlayerDialogParam() {
     Require(sceSystemServiceLaunchPlayerDialog(buffer) == SYSTEM_SERVICE_OK);
 }
 
+void TestBgmCpuBudget() {
+    Require(sceSystemServiceIsBgmCpuBudgetAvailable());
+    Require(sceShellCoreUtilIsBgmCpuBudgetAvailable());
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceShellCoreUtilAcquireBgmCpuBudget() == 0);
+    Require(sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceSystemServiceAcquireBgmCpuBudget() == 0);
+    Require(sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceSystemServiceReleaseBgmCpuBudget() == 0);
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+    Require(sceShellCoreUtilReleaseBgmCpuBudget() == 0);
+    Require(!sceShellCoreUtilIsBgmCpuBudgetAcquired());
+}
+
 }
 
 int main() {
@@ -207,5 +221,6 @@ int main() {
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();
+    TestBgmCpuBudget();
     TestPlayerDialogParam();
 }
