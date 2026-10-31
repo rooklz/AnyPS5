@@ -120,6 +120,10 @@ int main() {
     Require(sceSystemServiceDisableMusicPlayer() == SYSTEM_SERVICE_OK);
     Require(sceSystemServiceReenableMusicPlayer() == SYSTEM_SERVICE_OK);
     Require(sceSystemServiceIsBgmPlaying() == 0 && sceShellCoreUtilIsBgmPlaying() == 0);
+    Require(sceShellCoreUtilNotifyBgmCoreTermination() == SYSTEM_SERVICE_OK);
+    Require(sceSystemServiceNotifyBgmCoreTermination() == SYSTEM_SERVICE_OK);
+    Require(sceShellCoreUtilSetBgmProhibition(1u) == SYSTEM_SERVICE_OK);
+    Require(sceShellCoreUtilSetBgmProhibition(0u) == SYSTEM_SERVICE_OK);
     Require(sceSystemServiceReenableMusicPlayer() == SYSTEM_SERVICE_OK);
     Require(sceSystemServiceDisableMediaPlay() == SYSTEM_SERVICE_OK);
     Require(sceSystemServiceDisableMediaPlay() == SYSTEM_SERVICE_OK);
