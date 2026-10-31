@@ -2366,6 +2366,37 @@ static void CheckDatagramDisconnect() {
     for (const int descriptor : {peer, other, dissolved}) Require(sceNetSocketClose(descriptor) == 0);
 }
 
+static void CheckSyncObjects() {
+    Require(sceNetSyncGet(5) == nullptr);
+    Require(sceNetSyncGet(0xFFFFFFFFu) == nullptr);
+    Require(sceNetSyncGet(0) != nullptr);
+    Require(sceNetSyncGet(0) == sceNetSyncGet(0));
+    Require(sceNetSyncGet(0) != sceNetSyncGet(4));
+    NetSyncObject* sync = sceNetSyncGet(2);
+    Require(sceNetSyncCreate(sync, 0x2, "sync") == 0);
+    Require(sync->signals == 0x2);
+    Require(sceNetSyncWait(sync, nullptr) == 0x2);
+    Require(sync->signals == 0);
+    std::uint32_t timeout = 1;
+    Require(sceNetSyncWait(sync, &timeout) == 0);
+    Require(timeout == 0xFFFFFFFFu);
+    Require(sceNetSyncSignal(sync, 0x8) == 0);
+    Require(sync->signals == 0x8);
+    Require(sceNetSyncWait(sync, &timeout) == 0x8);
+    int woken = 0;
+    std::thread waiter([&] { woken = sceNetSyncWait(sync, nullptr); });
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    Require(sceNetSyncSignal(sync, 0x10) == 0);
+    waiter.join();
+    Require(woken == 0x10);
+    Require(sceNetSyncDestroy(sync) == 0);
+    Require(sync->signals == 0);
+    Require(Failed(sceNetSyncWait(sync, &timeout), 22));
+    Require(Failed(sceNetSyncSignal(sync, 1), 22));
+    Require(Failed(sceNetSyncDestroy(sync), 22));
+    Require(Failed(sceNetSyncCreate(nullptr, 0, nullptr), 14));
+}
+
 int main() {
     CheckEtherAddress();
     CheckEtherNtostrErrors();
@@ -2399,6 +2430,7 @@ int main() {
     Require(Failed(sceNetShowIfconfig(), 200));
     Require(sceNetInit_nid_postfix() == 0);
     CheckInitParam();
+    CheckSyncObjects();
     CheckEpollWritable();
     CheckSocketHostErrors();
     CheckSocketArgumentErrors();

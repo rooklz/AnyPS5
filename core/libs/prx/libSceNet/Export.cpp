@@ -104,6 +104,7 @@ namespace {
 constexpr int NET_ENOENT = 2;
 constexpr int NET_EINTR = 4;
 constexpr int NET_EBADF = 9;
+constexpr int NET_ENOMEM = 12;
 constexpr int NET_EACCES = 13;
 constexpr int NET_EFAULT = 14;
 constexpr int NET_EBUSY = 16;
@@ -393,6 +394,16 @@ bool g_net_inited = false;
 bool g_net_init_param_set = false;
 std::array<std::uint8_t, 32> g_net_init_param{};
 std::atomic<GuestSceNetTest::ResolverLookup> g_resolverLookupForTests{nullptr};
+
+struct NetSyncState {
+    std::mutex mutex;
+    std::condition_variable condition;
+    std::uint32_t signals = 0;
+};
+
+std::mutex g_syncLock;
+std::array<NetSyncObject, 5> g_syncObjects{};
+std::map<NetSyncObject*, std::shared_ptr<NetSyncState>> g_syncStates;
 
 int* errno_slot() {
     static thread_local int e = 0;
@@ -3131,28 +3142,88 @@ int APS5_VABI sceNetSocketInternal(const char* name, int domain, int type, int p
 }
 
 int APS5_VABI sceNetSyncCreate(NetSyncObject* sync, std::uint32_t signals, const char* name) {
-    NotImplemented_nid_no_patch(__func__);
+    (void)name;
+    if (!g_net_inited) return fail(NET_ENOTINIT);
+    if (sync == nullptr) return fail(NET_EFAULT);
+    std::shared_ptr<NetSyncState> state;
+    {
+        std::lock_guard lock(g_syncLock);
+        auto it = g_syncStates.find(sync);
+        if (it == g_syncStates.end()) {
+            state = std::shared_ptr<NetSyncState>(new (std::nothrow) NetSyncState());
+            if (!state) return fail(NET_ENOMEM);
+            g_syncStates.emplace(sync, state);
+        } else {
+            state = it->second;
+        }
+        std::lock_guard stateLock(state->mutex);
+        state->signals = signals;
+        sync->mutex = nullptr;
+        sync->condition = nullptr;
+        sync->signals = signals;
+        sync->reserved = 0;
+    }
     return 0;
 }
 
 int APS5_VABI sceNetSyncDestroy(NetSyncObject* sync) {
-    NotImplemented_nid_no_patch(__func__);
+    if (!g_net_inited) return fail(NET_ENOTINIT);
+    if (sync == nullptr) return fail(NET_EFAULT);
+    std::lock_guard lock(g_syncLock);
+    auto it = g_syncStates.find(sync);
+    if (it == g_syncStates.end()) return fail(NET_EINVAL);
+    g_syncStates.erase(it);
+    sync->mutex = nullptr;
+    sync->condition = nullptr;
+    sync->signals = 0;
+    sync->reserved = 0;
     return 0;
 }
 
 NetSyncObject* APS5_VABI sceNetSyncGet(std::uint32_t index) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    if (index >= g_syncObjects.size()) return nullptr;
+    return &g_syncObjects[index];
 }
 
 int APS5_VABI sceNetSyncSignal(NetSyncObject* sync, std::uint32_t signals) {
-    NotImplemented_nid_no_patch(__func__);
+    if (!g_net_inited) return fail(NET_ENOTINIT);
+    if (sync == nullptr) return fail(NET_EFAULT);
+    std::shared_ptr<NetSyncState> state;
+    {
+        std::lock_guard lock(g_syncLock);
+        auto it = g_syncStates.find(sync);
+        if (it == g_syncStates.end()) return fail(NET_EINVAL);
+        state = it->second;
+    }
+    std::lock_guard stateLock(state->mutex);
+    state->signals |= signals;
+    sync->signals = state->signals;
+    state->condition.notify_all();
     return 0;
 }
 
 int APS5_VABI sceNetSyncWait(NetSyncObject* sync, std::uint32_t* timeout) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    if (sync == nullptr) return fail(NET_EFAULT);
+    std::shared_ptr<NetSyncState> state;
+    {
+        std::lock_guard lock(g_syncLock);
+        auto it = g_syncStates.find(sync);
+        if (it == g_syncStates.end()) return fail(NET_EINVAL);
+        state = it->second;
+    }
+    std::unique_lock lock(state->mutex);
+    if (state->signals == 0) {
+        if (timeout == nullptr) {
+            state->condition.wait(lock, [&state] { return state->signals != 0; });
+        } else if (!state->condition.wait_for(lock, std::chrono::microseconds(*timeout), [&state] { return state->signals != 0; })) {
+            *timeout = 0xFFFFFFFFu;
+            return 0;
+        }
+    }
+    const std::uint32_t signalled = state->signals;
+    state->signals = 0;
+    sync->signals = 0;
+    return static_cast<int>(signalled);
 }
 
 int APS5_VABI sceNetSysctl(const int* name, std::uint32_t nameLength, void* oldValue, std::size_t* oldSize, const void* newValue, std::size_t newSize) {
