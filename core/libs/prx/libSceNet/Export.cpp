@@ -3241,7 +3241,6 @@ int APS5_VABI sceNetConfigUpInterfaceWithFlags(std::uint32_t interfaceId, std::u
 }
 
 int APS5_VABI sceNetConfigCleanUpAllInterfaces(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
