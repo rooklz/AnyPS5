@@ -387,6 +387,11 @@ int main() {
     CheckUnmountedCalls();
     Check(sceSaveDataSyncSaveDataMemory(nullptr) == static_cast<int>(0x809F0000), "null param rejected in memory sync");
     Check(sceSaveDataInitialize3(nullptr) == 0, "SaveData initializes");
+    SaveDataMountPoint transferPoint{};
+    SaveDataPrepareParam transferParam{};
+    Check(sceSaveDataPrepareForTransferring(nullptr, nullptr) == 0, "transfer prepare ignores null args");
+    Check(sceSaveDataPrepareForTransferring(&transferPoint, &transferParam) == 0, "transfer prepare succeeds");
+    Check(sceSaveDataPrepareForTransferring(&transferPoint, &transferParam) == 0, "transfer prepare is idempotent");
     CheckHostMountFailures();
     CheckMountCapacityAndLifecycle();
     MountAndCheck("fresh", MountReadWrite | MountCreate2, 1u, "CREATE2 of a missing save");
