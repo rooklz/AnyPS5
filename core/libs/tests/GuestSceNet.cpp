@@ -264,6 +264,7 @@ static void CheckNetstat() {
     Require(sceNetShowNetstatEx(0) == 0);
     Require(sceNetShowRoute() == 0);
     Require(sceNetShowRoute6() == 0);
+    Require(sceNetConfigRoutingShowRoutingConfig() == 0);
     Require(Failed(sceNetShowNetstatWithMemory(-1), 9));
     Require(Failed(sceNetShowRouteWithMemory(-1), 9));
     Require(Failed(sceNetShowIfconfigWithMemory(-1), 9));
