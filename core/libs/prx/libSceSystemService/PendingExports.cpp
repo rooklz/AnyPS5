@@ -350,8 +350,7 @@ int APS5_VABI sceLncUtilIsCdlgActivated(std::uint8_t* activated) {
 }
 
 bool APS5_VABI sceLncUtilIsCpuBudgetOfExtraAudioDevicesAvailable() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return true;
 }
 
 int APS5_VABI sceLncUtilIsHostBoot(std::int32_t appId, bool* hostBoot) {
