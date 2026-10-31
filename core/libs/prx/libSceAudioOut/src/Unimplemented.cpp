@@ -47,12 +47,10 @@ int APS5_VABI sceAudioOutGetSimulatedBusUsableStatusByBusType(void) {
 }
 
 int APS5_VABI sceAudioOutAttachToApplicationByPid(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 
 int APS5_VABI sceAudioOutDetachFromApplicationByPid(void) {
-    NotImplemented_nid_no_patch(__func__);
     return 0;
 }
 

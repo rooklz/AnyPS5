@@ -14,5 +14,7 @@ int main() {
     Require(sceAudioOutGetSimulatedHandleStatusInfo() == static_cast<int>(0x809B00FF), "simulated handle status info is not supported");
     Require(sceAudioOutGetInfoOpenNum() == 0, "open port count info returns 0");
     Require(sceAudioOutGetInfo() == 0, "port info returns 0");
+    Require(sceAudioOutAttachToApplicationByPid() == 0, "attach to application by pid returns 0");
+    Require(sceAudioOutDetachFromApplicationByPid() == 0, "detach from application by pid returns 0");
     std::puts("audio out info calls: PASS");
 }
