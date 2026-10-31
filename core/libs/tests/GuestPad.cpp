@@ -892,6 +892,8 @@ int main() {
     Require(!scePadIsValidHandle(PAD_HANDLE, PAD_PORT_TYPE_STANDARD));
     const PadVibrationParam earlyVibration{1, 2};
     for (const PadVibrationParam* param : {static_cast<const PadVibrationParam*>(nullptr), &earlyVibration}) Require(scePadSetVibrationForce(PAD_HANDLE, param) == PAD_ERROR_NOT_INITIALIZED);
+    Require(scePadEnableSpecificDeviceClass(9) == PAD_ERROR_NOT_INITIALIZED);
+    Require(scePadEnableSpecificDeviceClass(0) == PAD_ERROR_NOT_INITIALIZED);
     Pad::SetLightBar(0, true, 1, 2, 3);
     Require(scePadResetLightBarAll() == PAD_OK && LightBarIs(0, true, 1, 2, 3));
     Require(scePadResetLightBarAllByPortType(3) == PAD_ERROR_INVALID_ARG && scePadResetLightBarAllByPortType(PAD_PORT_TYPE_STANDARD) == PAD_OK && LightBarIs(0, true, 1, 2, 3));
@@ -956,6 +958,9 @@ int main() {
     Require(scePadGetHandle(user, PAD_PORT_TYPE_SPECIAL, 0) == noHandle);
     PadSetPortConnected_nid_postfix(1, true);
     Require(scePadInit_nid_postfix() == 0);
+    Require(scePadEnableSpecificDeviceClass(9) == PAD_OK);
+    Require(scePadEnableSpecificDeviceClass(0) == PAD_ERROR_INVALID_ARG);
+    Require(scePadEnableSpecificDeviceClass(9) == PAD_OK);
     PadInfo initInfo{};
     Require(scePadGetInfo_nid_postfix(&initInfo) == PAD_OK);
     Require(initInfo.connectedCount[0] == 2);

@@ -45,6 +45,7 @@ std::array<bool, PAD_MAX_CONTROLLERS> g_everOpened{false};
 bool g_remoteOpened = false;
 std::array<int, PAD_SPECIAL_HANDLE_COUNT> g_specialUsers{};
 std::atomic_bool g_initialized{false};
+std::atomic_bool g_specificDeviceClassEnabled{false};
 
 bool SpecialHandle(int handle) {
     const int slot = handle - PAD_SPECIAL_HANDLE;
@@ -506,8 +507,10 @@ int APS5_VABI scePadEnableExtensionPort(bool enabled) {
 }
 
 int APS5_VABI scePadEnableSpecificDeviceClass(std::int32_t deviceClass) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    if (!g_initialized.load(std::memory_order_acquire)) return PAD_ERROR_NOT_INITIALIZED;
+    if (deviceClass != 9) return PAD_ERROR_INVALID_ARG;
+    g_specificDeviceClassEnabled.store(true, std::memory_order_release);
+    return PAD_OK;
 }
 
 int APS5_VABI scePadOpenExt2(std::uint64_t deviceId, std::int32_t type, const void* reserved) {
