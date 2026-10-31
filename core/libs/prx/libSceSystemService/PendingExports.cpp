@@ -365,8 +365,7 @@ int APS5_VABI sceLncUtilIsPs2Emu(bool* emulated) {
 }
 
 bool APS5_VABI sceLncUtilIsShellUiFgAndGameBgCpuMode() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 int APS5_VABI sceLncUtilIsSpeculativeLaunch(std::int32_t appId, bool* speculative) {
@@ -1972,8 +1971,7 @@ bool APS5_VABI sceSystemServiceIsScreenSaverOn() {
 }
 
 bool APS5_VABI sceSystemServiceIsShellUiFgAndGameBgCpuMode() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    return false;
 }
 
 int APS5_VABI sceSystemServiceKillLocalProcess(std::int32_t appId, std::int32_t processId) {
