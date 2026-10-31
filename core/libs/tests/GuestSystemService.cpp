@@ -83,6 +83,14 @@ void TestRunningAppState() {
     TestRunningAppAnswer<bool>(sceLncUtilIsSpeculativeLaunch, false, true, LNC_UTIL_ERROR_INVALID_ARGUMENT);
 }
 
+void TestExtraAudioCpuBudget() {
+    Require(sceLncUtilIsCpuBudgetOfExtraAudioDevicesAvailable());
+    Require(sceLncUtilAcquireCpuBudgetOfExtraAudioDevices() == 0);
+    Require(sceLncUtilIsCpuBudgetOfExtraAudioDevicesAvailable());
+    Require(sceLncUtilReleaseCpuBudgetOfExtraAudioDevices() == 0);
+    Require(sceLncUtilIsCpuBudgetOfExtraAudioDevicesAvailable());
+}
+
 void TestRunningBigApp() {
     Require(sceLncUtilGetAppIdOfRunningBigApp() == sceSystemServiceGetAppIdOfRunningBigApp());
     TestBigAppList(sceLncUtilGetAppIdListOfBigApp);
@@ -207,5 +215,6 @@ int main() {
     TestRunningBigApp();
     TestRunningAppUser();
     TestRunningAppState();
+    TestExtraAudioCpuBudget();
     TestPlayerDialogParam();
 }
