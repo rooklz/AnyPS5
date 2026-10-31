@@ -631,8 +631,12 @@ int APS5_VABI sceAudioOutGetPortState(int handle, AudioOutPortState* state) {
 }
 
 int APS5_VABI sceAudioOutDeviceIdOpen(std::uint64_t deviceId, std::int32_t type, std::int32_t index, std::uint32_t length, std::int32_t frequency, std::uint32_t parameter) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    (void)deviceId;
+    (void)index;
+    if (frequency <= 0) {
+        return -2144993272;
+    }
+    return sceAudioOutOpen(0, type, 0, length, static_cast<std::uint32_t>(frequency), parameter);
 }
 
 int APS5_VABI sceAudioOutSysClose(int handle) {
