@@ -556,7 +556,7 @@ int APS5_VABI scePadSetLightBarBlinking(std::int32_t handle, const PadLightBarBl
 }
 
 std::uint64_t APS5_VABI scePadGetIdleCount(std::int32_t userId) {
-    NotImplemented_nid_no_patch(__func__);
+    (void)userId;
     return 0;
 }
 
