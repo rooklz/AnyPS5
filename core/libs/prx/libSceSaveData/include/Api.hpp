@@ -48,7 +48,7 @@ int APS5_VABI sceSaveDataGetCloudQuotaInfo(void);
 int APS5_VABI sceSaveDataGetEventInfo();
 int APS5_VABI sceSaveDataGetMountedSaveDataCount();
 int APS5_VABI sceSaveDataGetProgress();
-int APS5_VABI sceSaveDataGetSaveDataCount();
+int APS5_VABI sceSaveDataGetSaveDataCount(std::int32_t user_id);
 int APS5_VABI sceSaveDataGetSaveDataRootDir(void);
 int APS5_VABI sceSaveDataGetSaveDataRootPath(void);
 int APS5_VABI sceSaveDataGetSaveDataRootUsbPath(void);

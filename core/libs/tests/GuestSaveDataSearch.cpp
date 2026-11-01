@@ -1,4 +1,5 @@
 #include "prx/libSceSaveData.native/include/Api.hpp"
+#include "prx/libSceSaveData/include/Api.hpp"
 #include "SceTypes.hpp"
 #include "prx/libc/include/general/VabiMacros.hpp"
 
@@ -339,6 +340,30 @@ static void UnsetParamsReportDirectoryTime() {
     SetHostZone(inherited == nullptr ? nullptr : previous.c_str());
 }
 
+static void CountSaves() {
+    const auto previous = std::filesystem::current_path();
+    const auto root = std::filesystem::temp_directory_path() /
+        ("anyps5-savedata-count-" + std::to_string(std::random_device{}()));
+    std::filesystem::create_directories(root);
+    try {
+        std::filesystem::current_path(root);
+        Require(sceSaveDataGetSaveDataCount(1) == -2137063423, "count before initialization is NOT_INITIALIZED");
+        Require(sceSaveDataInitialize3(nullptr) == 0, "the count test initializes");
+        Require(sceSaveDataGetSaveDataCount(1) == 0, "an empty save root holds no saves");
+        std::filesystem::create_directories(std::filesystem::path("_sd") / "COUNT_A");
+        std::filesystem::create_directories(std::filesystem::path("_sd") / "COUNT_B");
+        std::ofstream(std::filesystem::path("_sd") / "COUNT_FILE");
+        Require(sceSaveDataGetSaveDataCount(1) == 2, "two save directories are counted");
+        Require(sceSaveDataGetSaveDataCount(7) == 2, "the host keeps one save root for every user");
+    } catch (...) {
+        std::filesystem::current_path(previous);
+        std::filesystem::remove_all(root);
+        throw;
+    }
+    std::filesystem::current_path(previous);
+    std::filesystem::remove_all(root);
+}
+
 int main() {
     const auto previous = std::filesystem::current_path();
     const auto root = std::filesystem::temp_directory_path() /
@@ -355,6 +380,7 @@ int main() {
         BlockSize();
         UnsetParamsReportDirectoryTime();
         CheckNullArguments();
+        CountSaves();
     } catch (const std::exception& error) {
         std::fprintf(stderr, "%s\n", error.what());
         status = 1;

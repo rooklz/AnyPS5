@@ -1347,9 +1347,17 @@ int APS5_VABI sceSaveDataGetProgress() {
     return 0;
 }
 
-int APS5_VABI sceSaveDataGetSaveDataCount() {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+int APS5_VABI sceSaveDataGetSaveDataCount(std::int32_t user_id) {
+    (void)user_id;
+    if (g_initializations == 0) return SAVE_DATA_ERROR_NOT_INITIALIZED;
+    if (!std::filesystem::is_directory(save_root())) return SAVE_DATA_OK;
+    int count = 0;
+    std::error_code error;
+    for (const auto& entry : std::filesystem::directory_iterator(save_root(), error)) {
+        if (entry.is_directory(error)) ++count;
+        if (error) return SAVE_DATA_ERROR_INTERNAL;
+    }
+    return error ? SAVE_DATA_ERROR_INTERNAL : count;
 }
 
 int APS5_VABI sceSaveDataGetSaveDataRootDir(void) {
