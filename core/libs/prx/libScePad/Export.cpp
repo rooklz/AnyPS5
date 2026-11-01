@@ -642,7 +642,8 @@ std::uint64_t APS5_VABI scePadGetIdleCount(std::int32_t userId) {
 int APS5_VABI scePadGetControllerIdleCount(std::int32_t handle, std::uint64_t* count) {
     if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
     if (handle == 0 || count == nullptr) return PAD_ERROR_INVALID_ARG;
-    NotImplemented_nid_no_patch(__func__);
+    *count = 0;
+    return PAD_OK;
 }
 
 int APS5_VABI scePadSetPowerSavingState(std::int32_t handle, std::uint8_t state) {
