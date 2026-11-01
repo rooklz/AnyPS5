@@ -2725,8 +2725,20 @@ int APS5_VABI sceNetGetIfList(std::int32_t interfaceId, NetInterfaceInfo* interf
 }
 
 int APS5_VABI sceNetGetIfListEx(std::int32_t interfaceId, NetInterfaceInfo* interfaces, std::uint32_t capacity, std::uint32_t flags) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    if (!g_net_inited) return fail(NET_ENOTINIT);
+    if (flags > 1) return fail(NET_EINVAL);
+    if (interfaces == nullptr ? capacity != 0 : capacity != 1) return fail(NET_EINVAL);
+    if (interfaceId == -1) NotImplemented_nid_no_patch(__func__);
+    if (static_cast<std::uint32_t>(interfaceId) >= 10u) {
+        set_errno(NET_EINVAL);
+        return 0;
+    }
+    if (interfaceId != 0) return 0;
+    if (interfaces != nullptr) {
+        *interfaces = NetInterfaceInfo{};
+        std::memcpy(interfaces->name, "lo0", 4);
+    }
+    return 1;
 }
 
 int APS5_VABI sceNetGetIfListOnce(std::int32_t interfaceId, NetInterfaceStatistics* statistics, std::uint32_t count) {

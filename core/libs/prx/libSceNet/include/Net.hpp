@@ -152,7 +152,13 @@ struct NetInfoDumpParameter {
     char path[64];
 };
 
-struct NetInterfaceInfo;
+struct NetInterfaceInfo {
+    char name[16];
+    std::uint8_t reserved[464];
+};
+
+static_assert(sizeof(NetInterfaceInfo) == 480);
+
 struct NetInterfaceStatistics;
 
 struct NetResolverConnectOption {
