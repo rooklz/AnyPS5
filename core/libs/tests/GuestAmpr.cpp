@@ -1842,6 +1842,23 @@ void TestExpandedBufferLifecycle() {
     Require(sceAmprCommandBufferDestructor(&buffer) == 0);
 }
 
+void TestTimeGetGetcat() {
+    auto* getcat = &_ZNSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE7_GetcatEPPKNSt6locale5facetEPKS5__nid_postfix;
+    Require(getcat(nullptr, nullptr) == 5);
+    GuestLocale::Facet facet{};
+    GuestLocale::Facet* present = &facet;
+    Require(getcat(&present, nullptr) == 5);
+    GuestLocale::Facet* absent = nullptr;
+    bool threw = false;
+    try {
+        getcat(&absent, nullptr);
+    } catch (const std::runtime_error&) {
+        threw = true;
+    }
+    Require(threw);
+    Require(absent == nullptr);
+}
+
 int main() {
     TestRecording("frame");
     TestRecording("");
@@ -1886,5 +1903,6 @@ int main() {
     TestKernelWriteCommands();
     TestAmmSubmitAfterGrowth();
     TestExpandedBufferLifecycle();
+    TestTimeGetGetcat();
     return 0;
 }

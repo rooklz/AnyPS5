@@ -2,6 +2,7 @@
 
 #include "prx/libkernel/Apr/include/AprCommandBuffer.hpp"
 #include "prx/libc/include/GuestTime.hpp"
+#include "prx/libc/include/GuestLocale.hpp"
 #include "SceTypes.hpp"
 
 struct AmmSubmitResult {
@@ -140,7 +141,7 @@ int APS5_VABI sceAmprAmmWaitCommandBufferCompletion(std::uint32_t id);
 void APS5_VABI _Unlock_shared_ptr_spin_lock_nid_postfix(void);
 int APS5_VABI _Cnd_init_with_name_nid_postfix(void** handle, const char*);
 int APS5_VABI _ZNKSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE3getES3_S3_RSt8ios_baseRNSt5_IosbIiE8_IostateEP2tmPKcSE__nid_postfix(void);
-int APS5_VABI _ZNSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE7_GetcatEPPKNSt6locale5facetEPKS5__nid_postfix(void);
+std::size_t APS5_VABI _ZNSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE7_GetcatEPPKNSt6locale5facetEPKS5__nid_postfix(GuestLocale::Facet** facet, const GuestLocale::Implementation* const* locale);
 void APS5_VABI _Lock_shared_ptr_spin_lock_nid_postfix(void);
 SonyLconv* APS5_VABI sceAmprLocaleconv(void);
 unsigned __int128 APS5_VABI sceAmprUdivti3(unsigned __int128 dividend, unsigned __int128 divisor);

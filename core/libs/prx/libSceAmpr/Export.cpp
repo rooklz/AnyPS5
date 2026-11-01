@@ -961,9 +961,9 @@ int APS5_VABI _ZNKSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE3get
     return 0;
 }
 
-int APS5_VABI _ZNSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE7_GetcatEPPKNSt6locale5facetEPKS5__nid_postfix(void) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+std::size_t APS5_VABI _ZNSt8time_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE7_GetcatEPPKNSt6locale5facetEPKS5__nid_postfix(GuestLocale::Facet** facet, const GuestLocale::Implementation* const*) {
+    if (facet != nullptr && *facet == nullptr) NotImplemented_nid_no_patch(__func__);
+    return 5;
 }
 
 void APS5_VABI _Lock_shared_ptr_spin_lock_nid_postfix(void) {
