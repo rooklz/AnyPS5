@@ -2720,8 +2720,18 @@ int APS5_VABI sceNetGetDnsInfo(NetDnsInfo* info, std::uint32_t flags) {
 }
 
 int APS5_VABI sceNetGetIfList(std::int32_t interfaceId, NetInterfaceInfo* interfaces, std::uint32_t capacity) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    if (!g_net_inited) return fail(NET_ENOTINIT);
+    if (interfaces == nullptr ? capacity != 0 : capacity != 1) return fail(NET_EINVAL);
+    if (static_cast<std::uint32_t>(interfaceId) >= 10u) {
+        set_errno(NET_EINVAL);
+        return 0;
+    }
+    if (interfaceId != 0) return 0;
+    if (interfaces != nullptr) {
+        *interfaces = NetInterfaceInfo{};
+        std::memcpy(interfaces->name, "lo0", 4);
+    }
+    return 1;
 }
 
 int APS5_VABI sceNetGetIfListEx(std::int32_t interfaceId, NetInterfaceInfo* interfaces, std::uint32_t capacity, std::uint32_t flags) {
