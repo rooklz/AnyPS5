@@ -601,6 +601,9 @@ int APS5_VABI scePadSetLoginUserNumber(std::int32_t number) {
 }
 
 int APS5_VABI scePadGetCapability(std::int32_t deviceId, std::uint32_t* capability) {
+    (void)deviceId;
+    if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+    if (capability == nullptr) return PAD_ERROR_INVALID_ARG;
     NotImplemented_nid_no_patch(__func__);
     return 0;
 }
