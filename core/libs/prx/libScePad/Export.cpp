@@ -1116,8 +1116,11 @@ int APS5_VABI scePadReadAstonForTracker(std::int32_t handle, PadAstonTrackerData
 }
 
 int APS5_VABI scePadGetAstonModel(std::int32_t handle) {
-    NotImplemented_nid_no_patch(__func__);
-    return 0;
+    constexpr std::int32_t AstonModelNotAston = 0xb;
+    if (!Pad::IsInitialized()) return PAD_ERROR_NOT_INITIALIZED;
+    if (!OpenHandle(handle)) return PAD_ERROR_INVALID_HANDLE;
+    if (SpecialHandle(handle)) NotImplemented_nid_no_patch("scePadGetAstonModel: special handle");
+    return AstonModelNotAston;
 }
 
 int APS5_VABI scePadMbusInit(void) {

@@ -16,6 +16,7 @@ int main() {
     Require(scePadGetJackState(1, &jack) == PAD_ERROR_NOT_INITIALIZED);
     Require(scePadIsControllerUpdateRequired(1) == PAD_ERROR_NOT_INITIALIZED);
     Require(scePadGetContainerIdInformation(1, &container) == PAD_ERROR_NOT_INITIALIZED);
+    Require(scePadGetAstonModel(1) == PAD_ERROR_NOT_INITIALIZED);
     Require(busType == -1 && jack == -1);
 
     Require(scePadInit_nid_postfix() == PAD_OK);
@@ -33,6 +34,7 @@ int main() {
         Require(scePadGetJackState(handle, &jack) == PAD_ERROR_INVALID_HANDLE);
         Require(scePadIsControllerUpdateRequired(handle) == PAD_ERROR_INVALID_HANDLE);
         Require(scePadGetContainerIdInformation(handle, &container) == PAD_ERROR_INVALID_HANDLE);
+        Require(scePadGetAstonModel(handle) == PAD_ERROR_INVALID_HANDLE);
     }
     Require(busType == -1 && jack == -1 && container.size == 0);
 
@@ -44,11 +46,13 @@ int main() {
     Require(scePadGetJackState(handle, &jack) == PAD_OK);
     Require(jack == 0);
     Require(scePadIsControllerUpdateRequired(handle) == 0);
+    Require(scePadGetAstonModel(handle) == 0xb);
     std::memset(&container, 0x5a, sizeof(container));
     Require(scePadGetContainerIdInformation(handle, &container) == PAD_OK);
     Require(container.size == 0 && container.id[0] == '\0');
 
     PadSetPortConnected_nid_postfix(0, false);
+    Require(scePadGetAstonModel(handle) == 0xb);
     Require(scePadGetControllerBusType(handle, &busType) == static_cast<int>(0x80920007));
     Require(scePadGetJackState(handle, &jack) == static_cast<int>(0x80920007));
     Require(scePadIsControllerUpdateRequired(handle) == static_cast<int>(0x80920007));
